@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="it.afam.view.ViewFormVerifica2FA" styleClass="root">
+    <padding><Insets top="42" right="42" bottom="42" left="42"/></padding>
+    <center>
+        <VBox alignment="CENTER" maxWidth="460" spacing="18" BorderPane.alignment="CENTER">
+            <VBox alignment="CENTER" spacing="6">
+                <Label text="Verifica 2FA" styleClass="form-title"/>
+                <Label text="Inserisci il codice temporaneo" styleClass="form-subtitle"/>
+            </VBox>
+            <VBox maxWidth="420" spacing="10">
+                <Label text="Codice" styleClass="field-label"/>
+                <TextField fx:id="codiceField" maxWidth="Infinity" prefHeight="44" promptText="Codice"/>
+                <Button maxWidth="Infinity" prefHeight="48" text="Verifica" onAction="#ClickVerifica"
+                        styleClass="primary-login-button"/>
+            </VBox>
+        </VBox>
+    </center>
+    <bottom>
+    <HBox alignment="BOTTOM_LEFT" BorderPane.alignment="BOTTOM_LEFT">
+        <Button text="Torna indietro" onAction="#ClickIndietro"/>
+    </HBox>
+    </bottom>
+</BorderPane>

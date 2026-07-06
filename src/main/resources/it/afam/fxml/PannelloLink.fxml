@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="it.afam.view.ViewPannelloLink" alignment="CENTER" spacing="12" styleClass="root">
+    <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+    <TextField fx:id="linkField" editable="false" prefWidth="520"/>
+    <HBox alignment="CENTER" spacing="8">
+        <Button text="Copia" onAction="#CopiaLink"/>
+        <Button text="Chiudi" onAction="#ClickChiudi"/>
+    </HBox>
+</VBox>

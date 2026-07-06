@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="it.afam.view.ViewPaginaContenuto" styleClass="root">
+    <padding><Insets top="42" right="42" bottom="42" left="42"/></padding>
+    <center>
+        <VBox alignment="CENTER" maxWidth="980" spacing="10" BorderPane.alignment="CENTER">
+            <VBox alignment="CENTER" spacing="4">
+                <Label fx:id="titoloLabel" styleClass="form-title"/>
+                <Label fx:id="visibilitaLabel" styleClass="form-subtitle"/>
+                <Label fx:id="fileLabel" wrapText="true" styleClass="file-path-label"/>
+            </VBox>
+            <TextArea fx:id="descrizioneArea" editable="false" maxHeight="110" maxWidth="900" prefRowCount="3" wrapText="true"/>
+            <StackPane fx:id="contenutoPane" minHeight="300" prefHeight="420" styleClass="content-preview" VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </center>
+    <bottom>
+    <HBox alignment="BOTTOM_LEFT" BorderPane.alignment="BOTTOM_LEFT">
+        <Button text="Torna indietro" onAction="#ClickIndietro"/>
+    </HBox>
+    </bottom>
+</BorderPane>

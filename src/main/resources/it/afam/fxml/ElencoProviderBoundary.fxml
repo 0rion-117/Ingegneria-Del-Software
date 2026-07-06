@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="it.afam.view.ViewElencoProvider" styleClass="root">
+    <padding><Insets top="42" right="42" bottom="42" left="42"/></padding>
+    <center>
+        <VBox alignment="CENTER" maxWidth="520" spacing="18" BorderPane.alignment="CENTER">
+            <VBox alignment="CENTER" spacing="6">
+                <Label text="Accesso con SPID" styleClass="form-title"/>
+                <Label text="Seleziona un fornitore di identita digitale" styleClass="form-subtitle"/>
+            </VBox>
+            <ListView fx:id="providerList" maxWidth="Infinity" prefHeight="240"/>
+            <Button maxWidth="Infinity" prefHeight="48" text="Seleziona Provider" onAction="#ClickSelezionaProvider"
+                    styleClass="spid-login-button"/>
+        </VBox>
+    </center>
+    <bottom>
+    <HBox alignment="BOTTOM_LEFT" BorderPane.alignment="BOTTOM_LEFT">
+        <Button text="Torna indietro" onAction="#ClickIndietro"/>
+    </HBox>
+    </bottom>
+</BorderPane>

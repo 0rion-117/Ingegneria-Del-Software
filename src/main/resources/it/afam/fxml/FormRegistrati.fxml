@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="it.afam.view.ViewFormRegistrati" styleClass="root">
+    <padding>
+        <Insets top="42" right="42" bottom="42" left="42"/>
+    </padding>
+    <center>
+        <VBox alignment="CENTER" maxWidth="760" spacing="18" BorderPane.alignment="CENTER">
+            <VBox alignment="CENTER" spacing="6">
+                <Label text="Crea account" styleClass="form-title"/>
+                <Label text="Compila i dati dello studente" styleClass="form-subtitle"/>
+            </VBox>
+            <GridPane alignment="CENTER" hgap="16" maxWidth="720" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" minWidth="170"/>
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="320"/>
+                </columnConstraints>
+                <Label text="Nome" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="nomeField" maxWidth="Infinity" prefHeight="40"
+                           GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <Label text="Cognome" styleClass="field-label" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <TextField fx:id="cognomeField" maxWidth="Infinity" prefHeight="40"
+                           GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                <Label text="E-mail" styleClass="field-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <TextField fx:id="emailField" maxWidth="Infinity" prefHeight="40"
+                           GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                <Label text="Password" styleClass="field-label" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <PasswordField fx:id="passwordField" maxWidth="Infinity" prefHeight="40"
+                               GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                <Label text="Conferma Password" styleClass="field-label" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <PasswordField fx:id="confermaPasswordField" maxWidth="Infinity" prefHeight="40"
+                               GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                <Label text="Data di Nascita" styleClass="field-label" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                <DatePicker fx:id="dataNascitaPicker" maxWidth="Infinity" prefHeight="40"
+                            GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                <Label text="Codice Fiscale" styleClass="field-label" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                <TextField fx:id="codiceFiscaleField" maxWidth="Infinity" prefHeight="40"
+                           GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+                <Label text="Username" styleClass="field-label" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                <TextField fx:id="usernameField" maxWidth="Infinity" prefHeight="40"
+                           GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+            </GridPane>
+            <Button maxWidth="360" prefHeight="48" text="Continua" onAction="#ClickContinua"
+                    styleClass="primary-login-button"/>
+        </VBox>
+    </center>
+    <bottom>
+    <HBox alignment="BOTTOM_LEFT" BorderPane.alignment="BOTTOM_LEFT">
+        <Button text="Torna indietro" onAction="#ClickIndietro"/>
+    </HBox>
+    </bottom>
+</BorderPane>

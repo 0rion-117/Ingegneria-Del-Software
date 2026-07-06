@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="it.afam.view.ViewPaginaErroreLink" styleClass="root">
+    <padding><Insets top="42" right="42" bottom="42" left="42"/></padding>
+    <center>
+        <VBox alignment="CENTER" maxWidth="460" spacing="18" BorderPane.alignment="CENTER">
+            <Label text="Link non valido o scaduto" styleClass="form-title"/>
+            <Button maxWidth="260" prefHeight="46" text="Chiudi" onAction="#ClickChiudi"
+                    styleClass="primary-login-button"/>
+        </VBox>
+    </center>
+</BorderPane>

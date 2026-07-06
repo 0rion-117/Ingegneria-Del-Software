@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="it.afam.view.ViewModuloLogin" styleClass="root">
+    <padding>
+        <Insets top="42" right="42" bottom="42" left="42"/>
+    </padding>
+    <center>
+        <VBox alignment="CENTER" maxWidth="720" spacing="24" BorderPane.alignment="CENTER">
+            <VBox alignment="CENTER" spacing="6">
+                <Label text="Sistema Identita Digitale Studenti AFAM" styleClass="login-title"/>
+                <Label text="Area studenti e portfolio pubblico" styleClass="login-subtitle"/>
+            </VBox>
+
+            <GridPane alignment="CENTER" hgap="14" maxWidth="620" vgap="14">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                </columnConstraints>
+                <Button maxWidth="Infinity" prefHeight="52" text="Accedi" onAction="#ClickAccedi"
+                        styleClass="primary-login-button" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Button maxWidth="Infinity" prefHeight="52" text="Accedi con SPID" onAction="#ClickAccediConSPID"
+                        styleClass="spid-login-button" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <Button maxWidth="Infinity" prefHeight="48" text="Registrati" onAction="#ClickRegistrati"
+                        styleClass="secondary-login-button" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <Button maxWidth="Infinity" prefHeight="48" text="Recupero Password" onAction="#SelezionaRecuperoPassword"
+                        styleClass="secondary-login-button" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            </GridPane>
+
+            <Separator maxWidth="620"/>
+
+            <VBox maxWidth="620" spacing="10">
+                <Label text="Barra di Ricerca" styleClass="login-section-label"/>
+                <HBox alignment="CENTER" spacing="10">
+                    <TextField fx:id="usernameField" promptText="Username studente" prefHeight="44"
+                               onMouseClicked="#ClickBarraRicerca" HBox.hgrow="ALWAYS"/>
+                    <Button minWidth="118" prefHeight="44" text="Cerca" onAction="#ClickCerca"
+                            styleClass="search-login-button"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="it.afam.view.ViewBannerNotifica" alignment="CENTER" spacing="10" styleClass="root">
+    <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+    <Label fx:id="testoLabel" alignment="CENTER" wrapText="true" prefWidth="420"/>
+    <Button text="Chiudi" onAction="#ClickChiudi"/>
+</VBox>
