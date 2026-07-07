@@ -1,0 +1,84 @@
+@startuml sd_AccessoTramiteLinkDedicato
+title <b>sd AccessoTramiteLinkDedicato</b>
+
+actor "Ente/Valutatore" as EnteValutatore
+boundary "ModuloLogin" as ModuloLogin
+boundary "PaginaAccessoGuest" as PaginaAccessoGuest
+boundary "PaginaErroreLink" as PaginaErroreLink
+boundary "PannelloErrore" as PannelloErrore
+control "GestioneAccessoEsternoCtl" as GestioneAccessoEsternoCtl
+control "RegistraVisualizzazioneCtl" as RegistraVisualizzazioneCtl
+boundary "DBMSBoundary" as DBMSBoundary
+actor "DBMS" as DBMS
+
+activate EnteValutatore
+
+EnteValutatore -> ModuloLogin : 1: ClickBarraRicerca()
+activate ModuloLogin
+
+EnteValutatore -> ModuloLogin : 1.1: InserisciLinkDedicato(linkDedicato)
+EnteValutatore -> ModuloLogin : 1.2: ClickCerca()
+
+ModuloLogin -> GestioneAccessoEsternoCtl : 1.3: AvviaAccessoTramiteLink(linkDedicato)
+activate GestioneAccessoEsternoCtl
+
+GestioneAccessoEsternoCtl -> DBMSBoundary : 2.1: RichiediVerificaLink(linkDedicato)
+activate DBMSBoundary
+
+DBMSBoundary -> DBMS : 2.2: querySelectLinkDedicato(linkDedicato)
+activate DBMS
+
+DBMS --> DBMSBoundary : esitoVerificaLink
+DBMSBoundary --> GestioneAccessoEsternoCtl : esitoVerificaLink
+
+deactivate DBMS
+deactivate DBMSBoundary
+
+alt 3: esitoVerificaLink = Falso
+
+    GestioneAccessoEsternoCtl -> PannelloErrore : 3.1: MostraPannelloErrore("Link non valido o scaduto")
+    activate PannelloErrore
+
+    EnteValutatore -> PannelloErrore : 3.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 3.3: ChiudiPannello()
+
+    destroy PannelloErrore
+
+    GestioneAccessoEsternoCtl -> PaginaErroreLink : 3.4: MostraPaginaErroreLink()
+    activate PaginaErroreLink
+    deactivate PaginaErroreLink
+
+else 4: esitoVerificaLink = Vero
+
+    GestioneAccessoEsternoCtl -> DBMSBoundary : 4.1.1: RichiediContenutiCartellaDaLink(linkDedicato)
+    activate DBMSBoundary
+
+    DBMSBoundary -> DBMS : 4.1.2: querySelectContenutiCartellaDaLink(linkDedicato)
+    activate DBMS
+
+    DBMS --> DBMSBoundary : contenutiCartella
+    DBMSBoundary --> GestioneAccessoEsternoCtl : contenutiCartella
+
+    deactivate DBMS
+    deactivate DBMSBoundary
+
+    GestioneAccessoEsternoCtl -> RegistraVisualizzazioneCtl : 4.2: RegistraVisualizzazione(idCartella)
+    activate RegistraVisualizzazioneCtl
+
+    ref over RegistraVisualizzazioneCtl
+        include: Registra Visualizzazione
+    end ref
+
+    deactivate RegistraVisualizzazioneCtl
+
+    GestioneAccessoEsternoCtl -> PaginaAccessoGuest : 4.3: MostraPaginaAccessoGuest(contenutiCartella)
+    activate PaginaAccessoGuest
+    deactivate PaginaAccessoGuest
+
+end
+
+deactivate GestioneAccessoEsternoCtl
+deactivate ModuloLogin
+deactivate EnteValutatore
+
+@enduml

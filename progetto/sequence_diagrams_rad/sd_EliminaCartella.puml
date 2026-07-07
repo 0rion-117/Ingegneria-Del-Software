@@ -1,0 +1,56 @@
+@startuml sd_EliminaCartella
+title <b>sd EliminaCartella</b>
+
+actor "Studente" as Studente
+boundary "GestioneCartelle" as GestioneCartelle
+control "GestioneEliminazioneCartellaCtl" as GestioneEliminazioneCartellaCtl
+entity "Cartella" as EntityCartella
+boundary "PannelloErrore" as PannelloErrore
+boundary "PannelloAvviso" as PannelloAvviso
+boundary "DBMSBoundary" as DBMSBoundary
+actor "DBMS" as DBMS
+
+activate Studente
+Studente -> GestioneCartelle : 1: ClickEliminaCartella(idCartella)
+activate GestioneCartelle
+GestioneCartelle -> GestioneEliminazioneCartellaCtl : 1.1: AvviaEliminaCartella(idCartella)
+activate GestioneEliminazioneCartellaCtl
+GestioneEliminazioneCartellaCtl -> PannelloAvviso : 2: MostraPannelloAvviso("Vuoi Eliminare?")
+activate PannelloAvviso
+Studente -> PannelloAvviso : 3: ClickConferma()
+PannelloAvviso -> PannelloAvviso : 4: ChiudiPannello()
+destroy PannelloAvviso
+GestioneEliminazioneCartellaCtl -> GestioneEliminazioneCartellaCtl : 5: eliminazioneElaborata = ElaboraRichiestaEliminazioneCartella(idCartella)
+
+alt 6: eliminazioneElaborata = Falso
+    GestioneEliminazioneCartellaCtl -> PannelloErrore : 6.1: MostraPannelloErrore("Errore durante l'eliminazione")
+    activate PannelloErrore
+    Studente -> PannelloErrore : 6.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 6.3: ChiudiPannello()
+    destroy PannelloErrore
+    GestioneEliminazioneCartellaCtl -> GestioneCartelle : 6.4: MostraGestioneCartelle()
+else 7: eliminazioneElaborata = Vero
+    GestioneEliminazioneCartellaCtl -> EntityCartella : 7.0: EliminaCartella(idCartella)
+    activate EntityCartella
+    deactivate EntityCartella
+    GestioneEliminazioneCartellaCtl -> DBMSBoundary : 7.1.1: RichiediEliminazioneCartella(idCartella)
+    activate DBMSBoundary
+    DBMSBoundary -> DBMS : 7.1.2: queryDeleteCartella(idCartella)
+    activate DBMS
+    DBMS --> DBMSBoundary : esitoEliminazioneCartella
+    DBMSBoundary --> GestioneEliminazioneCartellaCtl : esitoEliminazioneCartella
+    deactivate DBMS
+    deactivate DBMSBoundary
+    GestioneEliminazioneCartellaCtl -> PannelloAvviso : 7.2: MostraPannelloAvviso("Avvenuta Eliminazione")
+    activate PannelloAvviso
+    Studente -> PannelloAvviso : 7.3: ClickChiudi()
+    PannelloAvviso -> PannelloAvviso : 7.4: ChiudiPannello()
+    destroy PannelloAvviso
+    GestioneEliminazioneCartellaCtl -> GestioneCartelle : 7.5: MostraGestioneCartelleAggiornata()
+end
+
+deactivate GestioneEliminazioneCartellaCtl
+deactivate GestioneCartelle
+deactivate Studente
+
+@enduml

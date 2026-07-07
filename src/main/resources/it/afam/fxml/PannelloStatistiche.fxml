@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="it.afam.view.ViewPannelloStatistiche" alignment="CENTER" spacing="12" styleClass="root">
+      fx:controller="it.afam.view.PannelloStatisticheController" alignment="CENTER" spacing="12" styleClass="root">
     <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
     <TextArea fx:id="datiArea" editable="false" prefRowCount="6" prefColumnCount="40"/>
     <Button text="Chiudi" onAction="#ClickChiudi"/>

@@ -1,0 +1,192 @@
+@startuml ObjectDesign_GestioneVisibilitaECondivisione
+' ============================================================
+'  Object Design - Gestione Visibilita e Condivisione
+'  Derivato dal Class Diagram omonimo.
+'  Aggiornato con CaricaCartelleStudente,
+'  RichiediCartelleStudente e querySelectCartelleStudente.
+' ============================================================
+
+skinparam dpi 100
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 45
+skinparam ranksep 55
+skinparam padding 2
+hide circle
+
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #888888
+  BorderThickness 1
+  ArrowColor #888888
+  FontColor #000000
+  FontName SansSerif
+  FontSize 12
+  AttributeFontColor #000000
+  AttributeFontName SansSerif
+  AttributeFontSize 12
+  StereotypeFontColor #000000
+}
+
+title <b>Object Design - Gestione Visibilita e Condivisione</b>
+
+package "pkg" {
+
+class "GestioneCartelle" as GestioneCartelle <<boundary>> {
+  - idCartella : int
+  + ClickCreaCartella() : void
+  + ClickModificaCartella(idCartella : int) : void
+  + ClickEliminaCartella(idCartella : int) : void
+  + ClickCartella(idCartella : int) : void
+  + ClickCondividiCartella(idCartella : int) : void
+  + MostraGestioneCartelle() : void
+  + MostraGestioneCartelleAggiornata() : void
+}
+
+class "FormGestioneCartella" as FormGestioneCartella <<boundary>> {
+  - listaContenuti : List<Contenuto>
+  - nomeCartella : String
+  - listaIdContenuti : List<Integer>
+  + MostraFormGestioneCartella(listaContenuti : List<Contenuto>) : void
+  + MostraFormGestioneCartellaSelezionePrecedente() : void
+  + SelezionaContenuti(listaIdContenuti : List<Integer>) : void
+  + ModificaSelezioneContenuti(listaIdContenuti : List<Integer>) : void
+  + InserisciNomeCartella(nomeCartella : String) : void
+  + ClickConferma() : void
+  + ClickSalvaModifiche() : void
+}
+
+class "GestioneCreaCartellaCtl" as GestioneCreaCartellaCtl <<control>> {
+  - idStudente : int
+  - nomeCartella : String
+  - listaIdContenuti : List<Integer>
+  - listaContenuti : List<Contenuto>
+  + AvviaCreaCartella() : void
+  + InviaDatiCartella(nomeCartella : String, listaIdContenuti : List<Integer>) : void
+  + InviaNomeCartella(nomeCartella : String) : void
+  + VerificaPresenzaContenuti(listaContenuti : List<Contenuto>) : boolean
+}
+
+class "GestioneModificaCartellaCtl" as GestioneModificaCartellaCtl <<control>> {
+  - idStudente : int
+  - idCartella : int
+  - listaIdContenuti : List<Integer>
+  - listaContenutiConSelezione : List<Contenuto>
+  + AvviaModificaCartella(idCartella : int) : void
+  + InviaModificheCartella(idCartella : int, listaIdContenuti : List<Integer>) : void
+  + VerificaSelezioneContenuti(listaIdContenuti : List<Integer>) : boolean
+}
+
+class "GestioneEliminazioneCartellaCtl" as GestioneEliminazioneCartellaCtl <<control>> {
+  - idCartella : int
+  + AvviaEliminaCartella(idCartella : int) : void
+  + ElaboraRichiestaEliminazioneCartella(idCartella : int) : boolean
+}
+
+class "GestioneVisualizzaCartellaCtl" as GestioneVisualizzaCartellaCtl <<control>> {
+  - idCartella : int
+  + AvviaVisualizzaCartella(idCartella : int) : void
+  + VerificaPresenzaContenuti(contenutiCartella : List<Contenuto>) : boolean
+  + CaricaCartelleStudente(idStudente : int) : List<Cartella>
+}
+
+class "GestioneCondivisioneCtl" as GestioneCondivisioneCtl <<control>> {
+  - idCartella : int
+  - usernameStudente : String
+  - linkCartella : String
+  - contenutiCartella : List<Contenuto>
+  + AvvioCondivisione(idCartella : int) : void
+  + GeneraLink(usernameStudente : String, idCartella : int) : String
+}
+
+class "Cartella" as EntityCartella <<entity>> {
+  - idCartella : int
+  - nomeCartella : String
+  - listaIdContenuti : List<Integer>
+  - linkCartella : String
+  + CreaCartella(nomeCartella : String, listaIdContenuti : List<Integer>) : void
+  + AggiornaComposizioneCartella(idCartella : int, listaIdContenuti : List<Integer>) : void
+  + EliminaCartella(idCartella : int) : void
+  + SetLinkCartella(linkCartella : String) : void
+}
+
+class "Studente" as EntityStudente <<entity>> {
+  - usernameStudente : String
+  + GetUsernameStudente() : String
+}
+
+class "PaginaCartella" as PaginaCartella <<boundary>> {
+  - contenutiCartella : List<Contenuto>
+  + MostraPaginaCartella(contenutiCartella : List<Contenuto>) : void
+}
+
+class "PannelloLink" as PannelloLink <<boundary>> {
+  - linkCartella : String
+  + CreaPannelloLink() : void
+  + MostraLinkCondivisione(linkCartella : String) : void
+  + CopiaLink() : void
+  + ClickChiudi() : void
+  + ChiudiPannello() : void
+}
+
+class "PannelloErrore" as PannelloErrore <<boundary>> {
+  - messaggio : String
+  + MostraPannelloErrore(messaggio : String) : void
+  + ClickChiudi() : void
+  + ChiudiPannello() : void
+}
+
+class "PannelloAvviso" as PannelloAvviso <<boundary>> {
+  - messaggio : String
+  + MostraPannelloAvviso(messaggio : String) : void
+  + ClickConferma() : void
+  + ClickChiudi() : void
+  + ChiudiPannello() : void
+}
+
+class "DBMSBoundary" as DBMSBoundary <<boundary>> {
+  + RichiediContenutiPortfolio(idStudente : int) : List<Contenuto>
+  + RichiediVerificaNomeCartella(nomeCartella : String) : boolean
+  + RichiediCreazioneCartella(nomeCartella : String, listaIdContenuti : List<Integer>) : boolean
+  + RichiediContenutiPortfolioEAssociati(idStudente : int, idCartella : int) : List<Contenuto>
+  + RichiediSalvataggioModificheCartella(idCartella : int, listaIdContenuti : List<Integer>) : boolean
+  + RichiediEliminazioneCartella(idCartella : int) : boolean
+  + RichiediContenutiCartella(idCartella : int) : List<Contenuto>
+  + RichiediCartelleStudente(idStudente : int) : List<Cartella>
+  + RichiediAggiornamentoLinkCartella(idCartella : int, linkCartella : String) : boolean
+}
+
+class "DBMS" as DBMS <<actor>> {
+  + querySelectContenutiPortfolio(idStudente : int) : List<Contenuto>
+  + querySelectCartellaPerNome(nomeCartella : String) : boolean
+  + queryInsertCartella(nomeCartella : String, listaIdContenuti : List<Integer>) : boolean
+  + querySelectContenutiPortfolioECartella(idStudente : int, idCartella : int) : List<Contenuto>
+  + queryUpdateCartellaContenuti(idCartella : int, listaIdContenuti : List<Integer>) : boolean
+  + queryDeleteCartella(idCartella : int) : boolean
+  + querySelectContenutiCartella(idCartella : int) : List<Contenuto>
+  + querySelectCartelleStudente(idStudente : int) : List<Cartella>
+  + queryUpdateLinkCartella(idCartella : int, linkCartella : String) : boolean
+}
+
+' === Object Design in stile ESEMPIO: nessuna associazione visibile ===
+' === Disposizione a griglia su 2 colonne tramite link invisibili ===
+GestioneCartelle -[hidden]down- FormGestioneCartella
+FormGestioneCartella -[hidden]down- GestioneCreaCartellaCtl
+GestioneCreaCartellaCtl -[hidden]down- GestioneModificaCartellaCtl
+GestioneModificaCartellaCtl -[hidden]down- GestioneEliminazioneCartellaCtl
+GestioneEliminazioneCartellaCtl -[hidden]down- GestioneVisualizzaCartellaCtl
+GestioneVisualizzaCartellaCtl -[hidden]down- GestioneCondivisioneCtl
+GestioneCondivisioneCtl -[hidden]down- EntityCartella
+
+EntityStudente -[hidden]down- PaginaCartella
+PaginaCartella -[hidden]down- PannelloLink
+PannelloLink -[hidden]down- PannelloErrore
+PannelloErrore -[hidden]down- PannelloAvviso
+PannelloAvviso -[hidden]down- DBMSBoundary
+DBMSBoundary -[hidden]down- DBMS
+
+GestioneCartelle -[hidden]right- EntityStudente
+
+}
+
+@enduml

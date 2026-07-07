@@ -1,0 +1,201 @@
+@startuml ClassDiagram_GestioneVisibilitaECondivisione
+' ============================================================
+'  Class Diagram - Gestione Visibilita e Condivisione
+'  Derivato fedelmente dai sequence diagram:
+'  GenerazioneLinkSicuri, CreaCartella, EliminaCartella,
+'  ModificaCartella, VisualizzaCartella
+' ============================================================
+skinparam dpi 100
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 45
+skinparam ranksep 55
+skinparam padding 2
+hide circle
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #888888
+  BorderThickness 1
+  ArrowColor #888888
+  FontColor #000000
+  FontName SansSerif
+  FontSize 12
+  AttributeFontColor #000000
+  AttributeFontName SansSerif
+  AttributeFontSize 12
+  StereotypeFontColor #000000
+}
+title <b>Class Diagram - Gestione Visibilita e Condivisione</b>
+
+class "GestioneCartelle" as GestioneCartelle <<boundary>> {
+  -idCartella
+  +ClickCreaCartella()
+  +ClickModificaCartella(idCartella)
+  +ClickEliminaCartella(idCartella)
+  +ClickCartella(idCartella)
+  +ClickCondividiCartella(idCartella)
+  +MostraGestioneCartelle()
+  +MostraGestioneCartelleAggiornata()
+}
+
+class "FormGestioneCartella" as FormGestioneCartella <<boundary>> {
+  -listaContenuti
+  -nomeCartella
+  -listaIdContenuti
+  +MostraFormGestioneCartella(listaContenuti)
+  +MostraFormGestioneCartellaSelezionePrecedente()
+  +SelezionaContenuti(listaIdContenuti)
+  +ModificaSelezioneContenuti(listaIdContenuti)
+  +InserisciNomeCartella(nomeCartella)
+  +ClickConferma()
+  +ClickSalvaModifiche()
+}
+
+class "GestioneCreaCartellaCtl" as GestioneCreaCartellaCtl <<control>> {
+  -idStudente
+  -nomeCartella
+  -listaIdContenuti
+  -listaContenuti
+  +AvviaCreaCartella()
+  +InviaDatiCartella(nomeCartella, listaIdContenuti)
+  +InviaNomeCartella(nomeCartella)
+  +VerificaPresenzaContenuti(listaContenuti)
+}
+
+class "GestioneModificaCartellaCtl" as GestioneModificaCartellaCtl <<control>> {
+  -idStudente
+  -idCartella
+  -listaIdContenuti
+  -listaContenutiConSelezione
+  +AvviaModificaCartella(idCartella)
+  +InviaModificheCartella(idCartella, listaIdContenuti)
+  +VerificaSelezioneContenuti(listaIdContenuti)
+}
+
+class "GestioneEliminazioneCartellaCtl" as GestioneEliminazioneCartellaCtl <<control>> {
+  -idCartella
+  +AvviaEliminaCartella(idCartella)
+  +ElaboraRichiestaEliminazioneCartella(idCartella)
+}
+
+class "GestioneVisualizzaCartellaCtl" as GestioneVisualizzaCartellaCtl <<control>> {
+  -idCartella
+  +AvviaVisualizzaCartella(idCartella)
+  +VerificaPresenzaContenuti(contenutiCartella)
+  +CaricaCartelleStudente(idStudente)
+}
+
+class "GestioneCondivisioneCtl" as GestioneCondivisioneCtl <<control>> {
+  -idCartella
+  -usernameStudente
+  -linkCartella
+  -contenutiCartella
+  +AvvioCondivisione(idCartella)
+  +GeneraLink(usernameStudente, idCartella)
+}
+
+class "Cartella" as EntityCartella <<entity>> {
+  -idCartella
+  -nomeCartella
+  -listaIdContenuti
+  -linkCartella
+  +CreaCartella(nomeCartella, listaIdContenuti)
+  +AggiornaComposizioneCartella(idCartella, listaIdContenuti)
+  +EliminaCartella(idCartella)
+  +SetLinkCartella(linkCartella)
+}
+
+class "Studente" as EntityStudente <<entity>> {
+  -usernameStudente
+  +GetUsernameStudente()
+}
+
+class "PaginaCartella" as PaginaCartella <<boundary>> {
+  -contenutiCartella
+  +MostraPaginaCartella(contenutiCartella)
+}
+
+class "PannelloLink" as PannelloLink <<boundary>> {
+  -linkCartella
+  +CreaPannelloLink()
+  +MostraLinkCondivisione(linkCartella)
+  +CopiaLink()
+  +ClickChiudi()
+  +ChiudiPannello()
+}
+
+class "PannelloErrore" as PannelloErrore <<boundary>> {
+  -messaggio
+  +MostraPannelloErrore(messaggio)
+  +ClickChiudi()
+  +ChiudiPannello()
+}
+
+class "PannelloAvviso" as PannelloAvviso <<boundary>> {
+  -messaggio
+  +MostraPannelloAvviso(messaggio)
+  +ClickConferma()
+  +ClickChiudi()
+  +ChiudiPannello()
+}
+
+class "DBMSBoundary" as DBMSBoundary <<boundary>> {
+  +RichiediContenutiPortfolio(idStudente)
+  +RichiediVerificaNomeCartella(nomeCartella)
+  +RichiediCreazioneCartella(nomeCartella, listaIdContenuti)
+  +RichiediContenutiPortfolioEAssociati(idStudente, idCartella)
+  +RichiediSalvataggioModificheCartella(idCartella, listaIdContenuti)
+  +RichiediEliminazioneCartella(idCartella)
+  +RichiediContenutiCartella(idCartella)
+  +RichiediCartelleStudente(idStudente)
+  +RichiediAggiornamentoLinkCartella(idCartella, linkCartella)
+}
+
+class "DBMS" as DBMS <<actor>> {
+  +querySelectContenutiPortfolio(idStudente)
+  +querySelectCartellaPerNome(nomeCartella)
+  +queryInsertCartella(nomeCartella, listaIdContenuti)
+  +querySelectContenutiPortfolioECartella(idStudente, idCartella)
+  +queryUpdateCartellaContenuti(idCartella, listaIdContenuti)
+  +queryDeleteCartella(idCartella)
+  +querySelectContenutiCartella(idCartella)
+  +querySelectCartelleStudente(idStudente)
+  +queryUpdateLinkCartella(idCartella, linkCartella)
+}
+
+' === Associazioni (scambio di messaggi tra classi) ===
+GestioneCartelle -- GestioneCreaCartellaCtl
+GestioneCartelle -- GestioneModificaCartellaCtl
+GestioneCartelle -- GestioneEliminazioneCartellaCtl
+GestioneCartelle -- GestioneVisualizzaCartellaCtl
+GestioneCartelle -- GestioneCondivisioneCtl
+
+GestioneCreaCartellaCtl -- FormGestioneCartella
+GestioneCreaCartellaCtl -- DBMSBoundary
+GestioneCreaCartellaCtl -- PannelloErrore
+GestioneCreaCartellaCtl -- PannelloAvviso
+GestioneCreaCartellaCtl -- EntityCartella
+
+GestioneModificaCartellaCtl -- FormGestioneCartella
+GestioneModificaCartellaCtl -- DBMSBoundary
+GestioneModificaCartellaCtl -- PannelloErrore
+GestioneModificaCartellaCtl -- PannelloAvviso
+GestioneModificaCartellaCtl -- EntityCartella
+
+GestioneEliminazioneCartellaCtl -- PannelloAvviso
+GestioneEliminazioneCartellaCtl -- PannelloErrore
+GestioneEliminazioneCartellaCtl -- EntityCartella
+GestioneEliminazioneCartellaCtl -- DBMSBoundary
+
+GestioneVisualizzaCartellaCtl -- DBMSBoundary
+GestioneVisualizzaCartellaCtl -- PannelloAvviso
+GestioneVisualizzaCartellaCtl -- PaginaCartella
+
+GestioneCondivisioneCtl -- DBMSBoundary
+GestioneCondivisioneCtl -- EntityStudente
+GestioneCondivisioneCtl -- EntityCartella
+GestioneCondivisioneCtl -- PannelloLink
+
+DBMSBoundary -- DBMS
+
+@enduml

@@ -1,0 +1,208 @@
+@startuml ClassDiagram_VisualizzazioneEFeedback
+
+' ============================================================
+' Class Diagram - Visualizzazione e Feedback
+' Derivato dai sequence diagram:
+' CercaProfilo, AccessoTramiteLinkDedicato,
+' RegistraVisualizzazione, RicezioneNotificaVisualizzazione,
+' StatisticheCartelleCondivise
+' ============================================================
+
+skinparam dpi 100
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 45
+skinparam ranksep 55
+skinparam padding 2
+
+hide circle
+
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #888888
+  BorderThickness 1
+  ArrowColor #888888
+  FontColor #000000
+  FontName SansSerif
+  FontSize 12
+  AttributeFontColor #000000
+  AttributeFontName SansSerif
+  AttributeFontSize 12
+  StereotypeFontColor #000000
+}
+
+title <b>Class Diagram - Visualizzazione e Feedback</b>
+
+class "ModuloLogin" as ModuloLogin <<boundary>> {
+  -usernameStudente
+  -linkDedicato
+  +ClickBarraRicerca()
+  +InserisciUsername(usernameStudente)
+  +InserisciLinkDedicato(linkDedicato)
+  +ClickCerca()
+  +MostraModuloLogin()
+}
+
+class "GestioneCercaProfiloCtl" as GestioneCercaProfiloCtl <<control>> {
+  -usernameStudente
+  -profiloPubblico
+  +InviaUsernameRicerca(usernameStudente)
+}
+
+class "PaginaProfiloPubblico" as PaginaProfiloPubblico <<boundary>> {
+  -profiloPubblico
+  +MostraPaginaProfiloPubblico(profiloPubblico)
+}
+
+class "PaginaAccessoGuest" as PaginaAccessoGuest <<boundary>> {
+  -contenutiCartella
+  +MostraPaginaAccessoGuest(contenutiCartella)
+}
+
+class "PaginaErroreLink" as PaginaErroreLink <<boundary>> {
+  +MostraPaginaErroreLink()
+}
+
+class "GestioneAccessoEsternoCtl" as GestioneAccessoEsternoCtl <<control>> {
+  -linkDedicato
+  -idCartella
+  -contenutiCartella
+  +AvviaAccessoTramiteLink(linkDedicato)
+}
+
+class "RegistraVisualizzazioneCtl" as RegistraVisualizzazioneCtl <<control>> {
+  -idCartella
+  -numeroVisualizzazioni
+  -numeroVisualizzazioniAggiornato
+  +RegistraVisualizzazione(idCartella)
+}
+
+class "GestioneNotificheCtl" as GestioneNotificheCtl <<control>> {
+  -idStudente
+  -idNotifica
+  -dettagliNotifica
+  -testoNotifica
+  +RilevaNotificaDaLeggere(idStudente)
+  +VerificaRecuperoNotifica(dettagliNotifica)
+  +PresaVisioneNotifica()
+}
+
+class "BannerNotifica" as BannerNotifica <<boundary>> {
+  -testoNotifica
+  +MostraBannerNotifica(testoNotifica)
+  +ClickChiudi()
+  +ChiudiBannerNotifica()
+}
+
+class "SchermataCorrente" as SchermataCorrente <<boundary>> {
+  +MostraSchermataCorrenteNonAggiornata()
+  +MostraSchermataCorrenteAggiornata()
+}
+
+class "GestioneCartelle" as GestioneCartelle <<boundary>> {
+  -idCartella
+  +ClickVisualizzaStatistiche(idCartella)
+  +MostraGestioneCartelle()
+}
+
+class "GestioneStatisticheCtl" as GestioneStatisticheCtl <<control>> {
+  -idCartella
+  -datiStatistici
+  +AvviaStatisticheCartella(idCartella)
+  +VerificaRecuperoDati(datiStatistici)
+}
+
+class "PannelloStatistiche" as PannelloStatistiche <<boundary>> {
+  -datiStatistici
+  +MostraPannelloStatistiche(datiStatistici)
+  +VisualizzaDati()
+  +ClickChiudi()
+  +ChiudiPannello()
+}
+
+class "Cartella" as EntityCartella <<entity>> {
+  -idCartella
+  -numeroVisualizzazioni
+  +SetNumeroVisualizzazioni(numeroVisualizzazioni)
+}
+
+class "Notifica" as EntityNotifica <<entity>> {
+  -idNotifica
+  -idStudente
+  -idCartella
+  -tipo
+  -stato
+  -dataOraGenerazione
+  +CreaNotifica(idStudente, idCartella, tipo, stato, dataOraGenerazione)
+  +GetDettagliNotifica(dettagliNotifica)
+  +SetStatoNotifica(stato)
+}
+
+class "PannelloErrore" as PannelloErrore <<boundary>> {
+  -messaggio
+  +MostraPannelloErrore(messaggio)
+  +ClickChiudi()
+  +ChiudiPannello()
+}
+
+class "DBMSBoundary" as DBMSBoundary <<boundary>> {
+  +RichiediVerificaUsername(usernameStudente)
+  +RichiediProfiloPubblico(usernameStudente)
+  +RichiediVerificaLink(linkDedicato)
+  +RichiediContenutiCartellaDaLink(linkDedicato)
+  +RichiediVisualizzazioniCartella(idCartella)
+  +RichiediAggiornamentoVisualizzazioni(idCartella, numeroVisualizzazioniAggiornato)
+  +RichiediInserimentoNotifica(idStudente, idCartella, tipo, stato, dataOraGenerazione)
+  +RichiediDettagliNotifica(idStudente)
+  +RichiediAggiornamentoStatoNotifica(idNotifica, stato)
+  +RichiediDatiStatistici(idCartella)
+}
+
+class "DBMS" as DBMS <<actor>> {
+  +querySelectStudentePerUsername(usernameStudente)
+  +querySelectProfiloPubblico(usernameStudente)
+  +querySelectLinkDedicato(linkDedicato)
+  +querySelectContenutiCartellaDaLink(linkDedicato)
+  +querySelectNumeroVisualizzazioni(idCartella)
+  +queryUpdateNumeroVisualizzazioni(idCartella, numeroVisualizzazioniAggiornato)
+  +queryInsertNotifica(idStudente, idCartella, tipo, stato, dataOraGenerazione)
+  +querySelectNotificaDaLeggere(idStudente)
+  +queryUpdateStatoNotifica(idNotifica, stato)
+  +querySelectDatiStatistici(idCartella)
+}
+
+' ============================================================
+' Associazioni
+' ============================================================
+
+ModuloLogin -- GestioneCercaProfiloCtl
+ModuloLogin -- GestioneAccessoEsternoCtl
+
+GestioneCercaProfiloCtl -- DBMSBoundary
+GestioneCercaProfiloCtl -- PannelloErrore
+GestioneCercaProfiloCtl -- PaginaProfiloPubblico
+
+GestioneAccessoEsternoCtl -- DBMSBoundary
+GestioneAccessoEsternoCtl -- PannelloErrore
+GestioneAccessoEsternoCtl -- PaginaErroreLink
+GestioneAccessoEsternoCtl -- RegistraVisualizzazioneCtl
+GestioneAccessoEsternoCtl -- PaginaAccessoGuest
+
+RegistraVisualizzazioneCtl -- DBMSBoundary
+RegistraVisualizzazioneCtl -- EntityCartella
+RegistraVisualizzazioneCtl -- EntityNotifica
+
+GestioneNotificheCtl -- DBMSBoundary
+GestioneNotificheCtl -- PannelloErrore
+GestioneNotificheCtl -- SchermataCorrente
+GestioneNotificheCtl -- EntityNotifica
+GestioneNotificheCtl -- BannerNotifica
+
+GestioneCartelle -- GestioneStatisticheCtl
+GestioneStatisticheCtl -- DBMSBoundary
+GestioneStatisticheCtl -- PannelloErrore
+GestioneStatisticheCtl -- PannelloStatistiche
+
+DBMSBoundary -- DBMS
+
+@enduml

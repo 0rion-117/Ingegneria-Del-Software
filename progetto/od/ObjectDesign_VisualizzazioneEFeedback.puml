@@ -1,0 +1,194 @@
+@startuml ObjectDesign_VisualizzazioneEFeedback
+' ============================================================
+'  Object Design - Visualizzazione e Feedback
+'  Derivato dal Class Diagram omonimo.
+'  Stessi metodi/attributi del class diagram, con l'aggiunta
+'  dei tipi (attributi, parametri, valori di ritorno) secondo
+'  lo stile grafico di "ESEMPIO OBJECT DESIGN UML".
+' ============================================================
+skinparam dpi 100
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 45
+skinparam ranksep 55
+skinparam padding 2
+hide circle
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #888888
+  BorderThickness 1
+  ArrowColor #888888
+  FontColor #000000
+  FontName SansSerif
+  FontSize 12
+  AttributeFontColor #000000
+  AttributeFontName SansSerif
+  AttributeFontSize 12
+  StereotypeFontColor #000000
+}
+title <b>Object Design - Visualizzazione e Feedback</b>
+
+package "pkg" {
+
+class "ModuloLogin" as ModuloLogin <<boundary>> {
+  - usernameStudente : TextField
+  - linkDedicato : TextField
+  + ClickBarraRicerca() : Button
+  + InserisciUsername(usernameStudente : String) : void
+  + InserisciLinkDedicato(linkDedicato : String) : void
+  + ClickCerca() : Button
+  + MostraModuloLogin() : void
+}
+
+class "GestioneCercaProfiloCtl" as GestioneCercaProfiloCtl <<control>> {
+  - usernameStudente : String
+  - profiloPubblico : Studente
+  + InviaUsernameRicerca(usernameStudente : String) : void
+}
+
+class "PaginaProfiloPubblico" as PaginaProfiloPubblico <<boundary>> {
+  - profiloPubblico : Studente
+  + MostraPaginaProfiloPubblico(profiloPubblico : Studente) : void
+}
+
+class "PaginaAccessoGuest" as PaginaAccessoGuest <<boundary>> {
+  - contenutiCartella : List<Contenuto>
+  + MostraPaginaAccessoGuest(contenutiCartella : List<Contenuto>) : void
+}
+
+class "PaginaErroreLink" as PaginaErroreLink <<boundary>> {
+  + MostraPaginaErroreLink() : void
+}
+
+class "GestioneAccessoEsternoCtl" as GestioneAccessoEsternoCtl <<control>> {
+  - linkDedicato : String
+  - idCartella : int
+  - contenutiCartella : List<Contenuto>
+  + AvviaAccessoTramiteLink(linkDedicato : String) : void
+}
+
+class "RegistraVisualizzazioneCtl" as RegistraVisualizzazioneCtl <<control>> {
+  - idCartella : int
+  - numeroVisualizzazioni : int
+  - numeroVisualizzazioniAggiornato : int
+  + RegistraVisualizzazione(idCartella : int) : void
+}
+
+class "GestioneNotificheCtl" as GestioneNotificheCtl <<control>> {
+  - idStudente : int
+  - idNotifica : int
+  - dettagliNotifica : Notifica
+  - testoNotifica : String
+  + RilevaNotificaDaLeggere(idStudente : int) : void
+  + VerificaRecuperoNotifica(dettagliNotifica : Notifica) : boolean
+  + PresaVisioneNotifica() : void
+}
+
+class "BannerNotifica" as BannerNotifica <<boundary>> {
+  - testoNotifica : String
+  + MostraBannerNotifica(testoNotifica : String) : void
+  + ClickChiudi() : Button
+  + ChiudiBannerNotifica() : void
+}
+
+class "SchermataCorrente" as SchermataCorrente <<boundary>> {
+  + MostraSchermataCorrenteNonAggiornata() : void
+  + MostraSchermataCorrenteAggiornata() : void
+}
+
+class "GestioneCartelle" as GestioneCartelle <<boundary>> {
+  - idCartella : int
+  + ClickVisualizzaStatistiche(idCartella : int) : Button
+  + MostraGestioneCartelle() : void
+}
+
+class "GestioneStatisticheCtl" as GestioneStatisticheCtl <<control>> {
+  - idCartella : int
+  - datiStatistici : String
+  + AvviaStatisticheCartella(idCartella : int) : void
+  + VerificaRecuperoDati(datiStatistici : String) : boolean
+}
+
+class "PannelloStatistiche" as PannelloStatistiche <<boundary>> {
+  - datiStatistici : String
+  + MostraPannelloStatistiche(datiStatistici : String) : void
+  + VisualizzaDati() : Button
+  + ClickChiudi() : Button
+  + ChiudiPannello() : void
+}
+
+class "Cartella" as EntityCartella <<entity>> {
+  - idCartella : int
+  - numeroVisualizzazioni : int
+  + SetNumeroVisualizzazioni(numeroVisualizzazioni : int) : void
+}
+
+class "Notifica" as EntityNotifica <<entity>> {
+  - idNotifica : int
+  - idStudente : int
+  - idCartella : int
+  - tipo : String
+  - stato : String
+  - dataOraGenerazione : LocalDateTime
+  + CreaNotifica(idStudente : int, idCartella : int, tipo : String, stato : String, dataOraGenerazione : LocalDateTime) : void
+  + GetDettagliNotifica(dettagliNotifica : Notifica) : Notifica
+  + SetStatoNotifica(stato : String) : void
+}
+
+class "PannelloErrore" as PannelloErrore <<boundary>> {
+  - messaggio : String
+  + MostraPannelloErrore(messaggio : String) : void
+  + ClickChiudi() : Button
+  + ChiudiPannello() : void
+}
+
+class "DBMSBoundary" as DBMSBoundary <<boundary>> {
+  + RichiediVerificaUsername(usernameStudente : String) : boolean
+  + RichiediProfiloPubblico(usernameStudente : String) : Studente
+  + RichiediVerificaLink(linkDedicato : String) : boolean
+  + RichiediContenutiCartellaDaLink(linkDedicato : String) : List<Contenuto>
+  + RichiediVisualizzazioniCartella(idCartella : int) : int
+  + RichiediAggiornamentoVisualizzazioni(idCartella : int, numeroVisualizzazioniAggiornato : int) : void
+  + RichiediInserimentoNotifica(idStudente : int, idCartella : int, tipo : String, stato : String, dataOraGenerazione : LocalDateTime) : void
+  + RichiediDettagliNotifica(idStudente : int) : Notifica
+  + RichiediAggiornamentoStatoNotifica(idNotifica : int, stato : String) : void
+  + RichiediDatiStatistici(idCartella : int) : String
+}
+
+class "DBMS" as DBMS <<actor>> {
+  + querySelectStudentePerUsername(usernameStudente : String) : ResultSet
+  + querySelectProfiloPubblico(usernameStudente : String) : ResultSet
+  + querySelectLinkDedicato(linkDedicato : String) : ResultSet
+  + querySelectContenutiCartellaDaLink(linkDedicato : String) : ResultSet
+  + querySelectNumeroVisualizzazioni(idCartella : int) : ResultSet
+  + queryUpdateNumeroVisualizzazioni(idCartella : int, numeroVisualizzazioniAggiornato : int) : void
+  + queryInsertNotifica(idStudente : int, idCartella : int, tipo : String, stato : String, dataOraGenerazione : LocalDateTime) : void
+  + querySelectNotificaDaLeggere(idStudente : int) : ResultSet
+  + queryUpdateStatoNotifica(idNotifica : int, stato : String) : void
+  + querySelectDatiStatistici(idCartella : int) : ResultSet
+}
+
+
+' === Object Design in stile ESEMPIO: nessuna associazione visibile ===
+' === Disposizione a griglia su 2 colonne tramite link invisibili ===
+ModuloLogin -[hidden]down- GestioneCercaProfiloCtl
+GestioneCercaProfiloCtl -[hidden]down- PaginaProfiloPubblico
+PaginaProfiloPubblico -[hidden]down- PaginaAccessoGuest
+PaginaAccessoGuest -[hidden]down- PaginaErroreLink
+PaginaErroreLink -[hidden]down- GestioneAccessoEsternoCtl
+GestioneAccessoEsternoCtl -[hidden]down- RegistraVisualizzazioneCtl
+RegistraVisualizzazioneCtl -[hidden]down- GestioneNotificheCtl
+GestioneNotificheCtl -[hidden]down- BannerNotifica
+SchermataCorrente -[hidden]down- GestioneCartelle
+GestioneCartelle -[hidden]down- GestioneStatisticheCtl
+GestioneStatisticheCtl -[hidden]down- PannelloStatistiche
+PannelloStatistiche -[hidden]down- EntityCartella
+EntityCartella -[hidden]down- EntityNotifica
+EntityNotifica -[hidden]down- PannelloErrore
+PannelloErrore -[hidden]down- DBMSBoundary
+DBMSBoundary -[hidden]down- DBMS
+ModuloLogin -[hidden]right- SchermataCorrente
+
+}
+
+@enduml

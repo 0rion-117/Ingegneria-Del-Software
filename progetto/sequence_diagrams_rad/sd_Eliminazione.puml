@@ -1,0 +1,68 @@
+@startuml sd_Eliminazione
+title <b>sd Eliminazione</b>
+
+actor "Studente" as Studente
+boundary "GestioneProfilo" as GestioneProfilo
+control "GestioneEliminazioneAccountCtl" as GestioneEliminazioneAccountCtl
+entity "Studente" as EntityStudente
+boundary "PannelloErrore" as PannelloErrore
+boundary "PannelloAvviso" as PannelloAvviso
+boundary "ModuloLogin" as ModuloLogin
+boundary "DBMSBoundary" as DBMSBoundary
+actor "DBMS" as DBMS
+
+activate Studente
+Studente -> GestioneProfilo : 1: SelezionaEliminaAccount()
+activate GestioneProfilo
+GestioneProfilo -> GestioneEliminazioneAccountCtl : 1.1: AvviaEliminazioneAccount()
+activate GestioneEliminazioneAccountCtl
+GestioneEliminazioneAccountCtl -> GestioneProfilo : 2: RichiediPasswordConfermaIdentita()
+Studente -> GestioneProfilo : 3: InserisciPassword(password)
+Studente -> GestioneProfilo : 4: ClickConferma()
+GestioneProfilo -> GestioneEliminazioneAccountCtl : 4.1: InviaPasswordEliminazione(password)
+GestioneEliminazioneAccountCtl -> PannelloAvviso : 5: MostraPannelloAvviso("Operazione Irreversibile (perdita di tutti i dati)")
+activate PannelloAvviso
+Studente -> PannelloAvviso : 6: ClickEliminaAccount()
+PannelloAvviso -> PannelloAvviso : 6.1: ChiudiPannello()
+destroy PannelloAvviso
+
+GestioneEliminazioneAccountCtl -> DBMSBoundary : 7.1: RichiediVerificaPassword(idStudente, password)
+activate DBMSBoundary
+DBMSBoundary -> DBMS : 7.2: querySelectPasswordStudente(idStudente, password)
+activate DBMS
+DBMS --> DBMSBoundary : esitoVerificaPassword
+DBMSBoundary --> GestioneEliminazioneAccountCtl : esitoVerificaPassword
+Deactivate DBMS
+Deactivate DBMSBoundary
+
+alt 8: esitoVerificaPassword = Falso
+    GestioneEliminazioneAccountCtl -> PannelloErrore : 8.1: MostraPannelloErrore("Password non corretta")
+    activate PannelloErrore
+    Studente -> PannelloErrore : 8.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 8.3: ChiudiPannello()
+    destroy PannelloErrore
+    GestioneEliminazioneAccountCtl -> GestioneProfilo : 8.4: MostraGestioneProfilo()
+else 9: esitoVerificaPassword = Vero
+    GestioneEliminazioneAccountCtl -> EntityStudente : 9.0: RimuoviDatiStudente(idStudente)
+    activate EntityStudente
+    deactivate EntityStudente
+    GestioneEliminazioneAccountCtl -> DBMSBoundary : 9.1.1: RichiediEliminazioneStudente(idStudente)
+    activate DBMSBoundary
+    DBMSBoundary -> DBMS : 9.1.2: queryDeleteStudenteEDatiCollegati(idStudente)
+    activate DBMS
+    DBMS --> DBMSBoundary : esitoEliminazione
+    deactivate DBMS
+    DBMSBoundary --> GestioneEliminazioneAccountCtl : esitoEliminazione
+    deactivate DBMSBoundary
+    GestioneEliminazioneAccountCtl -> PannelloAvviso : 9.3: MostraPannelloAvviso("Eliminazione Avvenuta")
+    Studente -> PannelloAvviso : 9.4: ClickChiudi()
+    PannelloAvviso -> PannelloAvviso : 9.5: ChiudiPannello()
+    destroy PannelloAvviso
+    GestioneEliminazioneAccountCtl -> ModuloLogin : 9.6: MostraModuloLogin()
+end
+
+deactivate GestioneEliminazioneAccountCtl
+deactivate GestioneProfilo
+deactivate Studente
+
+@enduml

@@ -1,0 +1,45 @@
+@startuml sd_VisualizzaContenuto
+title <b>sd VisualizzaContenuto</b>
+
+actor "Attore" as Attore
+boundary "Boundary" as Boundary
+control "GestioneVisualizzaContenutoCtl" as GestioneVisualizzaContenutoCtl
+boundary "PaginaContenuto" as PaginaContenuto
+boundary "PannelloErrore" as PannelloErrore
+boundary "DBMSBoundary" as DBMSBoundary
+actor "DBMS" as DBMS
+
+activate Attore
+Attore -> Boundary : 1.0: ClickContenuto(idContenuto)
+activate Boundary
+Boundary -> GestioneVisualizzaContenutoCtl : 1.1: AvviaVisualizzaContenuto(idContenuto)
+activate GestioneVisualizzaContenutoCtl
+GestioneVisualizzaContenutoCtl -> DBMSBoundary : 1.2: RichiediContenuto(idContenuto)
+activate DBMSBoundary
+DBMSBoundary -> DBMS : 1.3: querySelectContenuto(idContenuto)
+activate DBMS
+DBMS --> DBMSBoundary : contenuto
+DBMSBoundary --> GestioneVisualizzaContenutoCtl : contenuto
+Deactivate DBMS
+Deactivate DBMSBoundary
+
+GestioneVisualizzaContenutoCtl -> GestioneVisualizzaContenutoCtl : 1.4: recuperoContenutoRiuscito = VerificaRecuperoContenuto(contenuto)
+
+alt 2: recuperoContenutoRiuscito = Falso
+    GestioneVisualizzaContenutoCtl -> PannelloErrore : 2.1: MostraPannelloErrore("Errore nella visualizzazione del contenuto")
+    activate PannelloErrore
+    Attore -> PannelloErrore : 2.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 2.3: ChiudiPannello()
+    destroy PannelloErrore
+    GestioneVisualizzaContenutoCtl -> Boundary : 2.4: MostraSchermataPrecedente()
+else 3: recuperoContenutoRiuscito = Vero
+    GestioneVisualizzaContenutoCtl -> PaginaContenuto : 3.1: MostraPaginaContenuto(contenuto)
+    activate PaginaContenuto
+    deactivate PaginaContenuto
+end
+
+deactivate GestioneVisualizzaContenutoCtl
+deactivate Boundary
+deactivate Attore
+
+@enduml

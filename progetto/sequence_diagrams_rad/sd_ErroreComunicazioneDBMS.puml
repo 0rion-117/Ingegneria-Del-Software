@@ -1,0 +1,49 @@
+@startuml sd_ErroreComunicazioneDBMS
+title <b>sd ErroreComunicazioneDBMS</b>
+
+actor "Attore" as Attore
+control "GestioneErroreComunicazioneDBMSCtl" as GestioneErroreComunicazioneDBMSCtl
+boundary "PannelloErrore" as PannelloErrore
+boundary "SchermataPrecedente" as SchermataPrecedente
+boundary "DBMSBoundary" as DBMSBoundary
+actor "DBMS" as DBMS
+
+'=== Passi 1-2: rilevazione e inizializzazione tentativi ===
+activate GestioneErroreComunicazioneDBMSCtl
+GestioneErroreComunicazioneDBMSCtl -> GestioneErroreComunicazioneDBMSCtl : 1: RilevaMancataComunicazioneDBMS()
+GestioneErroreComunicazioneDBMSCtl -> GestioneErroreComunicazioneDBMSCtl : 2.1: numeroTentativi = 0
+GestioneErroreComunicazioneDBMSCtl -> GestioneErroreComunicazioneDBMSCtl : 2.2: riconnessioneRiuscita = Falso
+GestioneErroreComunicazioneDBMSCtl -> GestioneErroreComunicazioneDBMSCtl : 2.3: deveRiprovare = ValutaTentativi(riconnessioneRiuscita, numeroTentativi, 3)
+
+'=== Passo 3: tentativi di riconnessione (max 3) ===
+loop 3: deveRiprovare = Vero
+    GestioneErroreComunicazioneDBMSCtl -> DBMSBoundary : 3.1: RichiediRiconnessioneDBMS()
+    activate DBMSBoundary
+    DBMSBoundary -> DBMS : 3.2: queryPingDBMS()
+    activate DBMS
+    DBMS --> DBMSBoundary : esitoRiconnessione
+    deactivate DBMS
+    DBMSBoundary --> GestioneErroreComunicazioneDBMSCtl : esitoRiconnessione
+    deactivate DBMSBoundary
+    GestioneErroreComunicazioneDBMSCtl -> GestioneErroreComunicazioneDBMSCtl : 3.3: numeroTentativi = numeroTentativi + 1
+    GestioneErroreComunicazioneDBMSCtl -> GestioneErroreComunicazioneDBMSCtl : 3.4: riconnessioneRiuscita = VerificaRiconnessione(esitoRiconnessione)
+    GestioneErroreComunicazioneDBMSCtl -> GestioneErroreComunicazioneDBMSCtl : 3.5: deveRiprovare = ValutaTentativi(riconnessioneRiuscita, numeroTentativi, 3)
+end
+
+'=== Passi 4-5: esito della riconnessione ===
+alt 4: riconnessioneRiuscita = Vero
+    GestioneErroreComunicazioneDBMSCtl -> GestioneErroreComunicazioneDBMSCtl : 4.1: RiprendiOperazioneInterrotta()
+else 5: riconnessioneRiuscita = Falso
+    GestioneErroreComunicazioneDBMSCtl -> PannelloErrore : 5.1: MostraPannelloErrore("Errore DBMS")
+    activate PannelloErrore
+    Attore -> PannelloErrore : 5.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 5.3: ChiudiPannello()
+    destroy PannelloErrore
+    GestioneErroreComunicazioneDBMSCtl -> SchermataPrecedente : 5.4: MostraSchermataPrecedente()
+    activate SchermataPrecedente
+    deactivate SchermataPrecedente
+end
+
+deactivate GestioneErroreComunicazioneDBMSCtl
+
+@enduml

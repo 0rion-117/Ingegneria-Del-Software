@@ -1,0 +1,75 @@
+@startuml sd_ModificaCartella
+title <b>sd ModificaCartella</b>
+
+actor "Studente" as Studente
+boundary "GestioneCartelle" as GestioneCartelle
+boundary "FormGestioneCartella" as FormGestioneCartella
+control "GestioneModificaCartellaCtl" as GestioneModificaCartellaCtl
+entity "Cartella" as EntityCartella
+boundary "PannelloErrore" as PannelloErrore
+boundary "PannelloAvviso" as PannelloAvviso
+boundary "DBMSBoundary" as DBMSBoundary
+actor "DBMS" as DBMS
+
+activate Studente
+Studente -> GestioneCartelle : 1: ClickModificaCartella(idCartella)
+activate GestioneCartelle
+GestioneCartelle -> GestioneModificaCartellaCtl : 1.1: AvviaModificaCartella(idCartella)
+activate GestioneModificaCartellaCtl
+GestioneModificaCartellaCtl -> DBMSBoundary : 2.1: RichiediContenutiPortfolioEAssociati(idStudente, idCartella)
+activate DBMSBoundary
+DBMSBoundary -> DBMS : 2.2: querySelectContenutiPortfolioECartella(idStudente, idCartella)
+activate DBMS
+DBMS --> DBMSBoundary : listaContenutiConSelezione
+DBMSBoundary --> GestioneModificaCartellaCtl : listaContenutiConSelezione
+Deactivate DBMS
+Deactivate DBMSBoundary
+GestioneModificaCartellaCtl -> FormGestioneCartella : 3: MostraFormGestioneCartella(listaContenutiConSelezione)
+activate FormGestioneCartella
+Studente -> FormGestioneCartella : 4: ModificaSelezioneContenuti(listaIdContenuti)
+Studente -> FormGestioneCartella : 5: ClickSalvaModifiche()
+FormGestioneCartella -> GestioneModificaCartellaCtl : 5.1: InviaModificheCartella(idCartella, listaIdContenuti)
+GestioneModificaCartellaCtl -> GestioneModificaCartellaCtl : 6.0: contenutiSelezionati = VerificaSelezioneContenuti(listaIdContenuti)
+
+alt 6: contenutiSelezionati = Falso
+    GestioneModificaCartellaCtl -> PannelloErrore : 6.1: MostraPannelloErrore("Selezionare almeno un contenuto")
+    activate PannelloErrore
+    Studente -> PannelloErrore : 6.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 6.3: ChiudiPannello()
+    destroy PannelloErrore
+    GestioneModificaCartellaCtl -> FormGestioneCartella : 6.4: MostraFormGestioneCartellaSelezionePrecedente()
+else 7: contenutiSelezionati = Vero
+    GestioneModificaCartellaCtl -> EntityCartella : 7.0: AggiornaComposizioneCartella(idCartella, listaIdContenuti)
+    activate EntityCartella
+    deactivate EntityCartella
+    GestioneModificaCartellaCtl -> DBMSBoundary : 7.1.1: RichiediSalvataggioModificheCartella(idCartella, listaIdContenuti)
+    activate DBMSBoundary
+    DBMSBoundary -> DBMS : 7.1.2: queryUpdateCartellaContenuti(idCartella, listaIdContenuti)
+    activate DBMS
+    DBMS --> DBMSBoundary : esitoSalvataggioModifiche
+    DBMSBoundary --> GestioneModificaCartellaCtl : esitoSalvataggioModifiche
+    deactivate DBMS
+    deactivate DBMSBoundary
+    alt 7.2: esitoSalvataggioModifiche = Falso
+        GestioneModificaCartellaCtl -> PannelloErrore : 7.2.1: MostraPannelloErrore("Errore durante il salvataggio")
+        activate PannelloErrore
+        Studente -> PannelloErrore : 7.2.2: ClickChiudi()
+        PannelloErrore -> PannelloErrore : 7.2.3: ChiudiPannello()
+        destroy PannelloErrore
+        GestioneModificaCartellaCtl -> GestioneCartelle : 7.2.4: MostraGestioneCartelle()
+    else 7.3: esitoSalvataggioModifiche = Vero
+        GestioneModificaCartellaCtl -> PannelloAvviso : 7.3.1: MostraPannelloAvviso("Modifica Avvenuta")
+        activate PannelloAvviso
+        Studente -> PannelloAvviso : 7.3.2: ClickChiudi()
+        PannelloAvviso -> PannelloAvviso : 7.3.3: ChiudiPannello()
+        destroy PannelloAvviso
+        GestioneModificaCartellaCtl -> GestioneCartelle : 7.3.4: MostraGestioneCartelleAggiornata()
+    end
+end
+
+deactivate FormGestioneCartella
+deactivate GestioneModificaCartellaCtl
+deactivate GestioneCartelle
+deactivate Studente
+
+@enduml

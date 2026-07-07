@@ -1,0 +1,146 @@
+@startuml ClassDiagram_ComponentiTecniciSupporto
+' ============================================================
+'  Class Diagram - Componenti tecnici di supporto
+'  Documenta le classi tecniche presenti nel codice JavaFX
+'  che supportano navigazione, sessione, persistenza e helper.
+' ============================================================
+skinparam dpi 100
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 45
+skinparam ranksep 55
+skinparam padding 2
+hide circle
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #888888
+  BorderThickness 1
+  ArrowColor #888888
+  FontColor #000000
+  FontName SansSerif
+  FontSize 12
+  AttributeFontColor #000000
+  AttributeFontName SansSerif
+  AttributeFontSize 12
+  StereotypeFontColor #000000
+}
+title <b>Class Diagram - Componenti tecnici di supporto</b>
+
+class "Navigazione" as Navigazione <<support>> {
+  +inizializza(primaryStage)
+  +MostraModuloLogin()
+  +MostraInterfacciaPrincipaleStudente()
+  +MostraInterfacciaPrincipaleStudenteAggiornata()
+  +MostraGestioneCartelle()
+  +MostraGestioneCartelleAggiornata()
+  +MostraFormContenuto()
+  +MostraPannelloErrore(messaggio)
+  +MostraPannelloAvviso(messaggio)
+  +CreaPannelloLink(linkCartella)
+  +MostraPannelloStatistiche(datiStatistici)
+  +MostraBannerNotifica(testoNotifica)
+  -caricaScena(fxml, titolo)
+}
+
+class "Sessione" as Sessione <<support>> {
+  -idStudente
+  -usernameStudente
+  -emailStudente
+  -listaContenuti
+  -listaCartelle
+  -contenutoCorrente
+  -cartellaCorrente
+  +avviaStudente(id, username, email)
+  +preparaVerifica2FA(studente)
+  +confermaVerifica2FA()
+  +TerminaSessioneStudente()
+  +getIdStudente()
+  +getUsernameStudente()
+  +setListaContenuti(listaContenuti)
+  +setListaCartelle(listaCartelle)
+  +setContenutoCorrente(contenutoCorrente)
+  +setCartellaCorrente(cartellaCorrente)
+}
+
+class "Database" as Database <<support>> {
+  +getConnection()
+  +inizializza()
+  -creaTabelle()
+  -popolaProvider()
+}
+
+class "DBMSBoundary" as DBMSBoundary <<boundary>> {
+  +RichiediContenutiPortfolio(idStudente)
+  +RichiediCartelleStudente(idStudente)
+  +RichiediContenutiCartella(idCartella)
+  +RichiediSalvataggioContenuto(file, titolo, descrizione, visibilita)
+  +RichiediAggiornamentoContenuto(idContenuto, file, titolo, descrizione, visibilita)
+  +RichiediRiconnessioneDBMS()
+}
+
+class "QueryDBMS" as QueryDBMS <<support>> {
+  +querySelectContenutiPortfolio(idStudente)
+  +querySelectCartelleStudente(idStudente)
+  +querySelectContenutiCartella(idCartella)
+  +queryInsertContenuto(file, titolo, descrizione, visibilita)
+  +queryUpdateContenuto(idContenuto, file, titolo, descrizione, visibilita)
+  +queryPingDBMS()
+}
+
+class "FunzioniGeneriche" as FunzioniGeneriche <<support>> {
+  +validaEmail(email)
+  +validaPassword(password)
+  +validaCodiceFiscale(cf)
+  +validaFile(percorsoFile)
+  +salvaFileContenuto(percorsoFile, usernameStudente)
+  +eliminaFileContenutoGestito(percorsoFile)
+  +criptaPassword(password)
+  +generaCodiceNumerico(lunghezza)
+  +generaToken()
+}
+
+class "GestioneVisualizzaPortfolioCtl" as GestioneVisualizzaPortfolioCtl <<control>> {
+  +AvviaVisualizzaPortfolio(idStudente)
+}
+
+class "GestioneVisualizzaCartellaCtl" as GestioneVisualizzaCartellaCtl <<control>> {
+  +AvviaVisualizzaCartella(idCartella)
+  +CaricaCartelleStudente(idStudente)
+}
+
+class "GestioneCaricaContenutiCtl" as GestioneCaricaContenutiCtl <<control>> {
+  -caricamentoInCorso
+  +InviaDatiContenuto(file, titolo, descrizione, visibilita)
+  -InviaDatiContenutoElaborati(file, titolo, descrizione, visibilita)
+  -iniziaCaricamento()
+  -terminaCaricamento()
+}
+
+class "GestioneModificaContenutiCtl" as GestioneModificaContenutiCtl <<control>> {
+  -modificaInCorso
+  +InviaDatiModificati(idContenuto, file, titolo, descrizione, visibilita)
+  -InviaDatiModificatiElaborati(idContenuto, file, titolo, descrizione, visibilita)
+  -iniziaModifica()
+  -terminaModifica()
+}
+
+GestioneVisualizzaPortfolioCtl -- DBMSBoundary
+GestioneVisualizzaPortfolioCtl -- Sessione
+
+GestioneVisualizzaCartellaCtl -- DBMSBoundary
+GestioneVisualizzaCartellaCtl -- Sessione
+
+GestioneCaricaContenutiCtl -- Navigazione
+GestioneCaricaContenutiCtl -- Sessione
+GestioneCaricaContenutiCtl -- DBMSBoundary
+GestioneCaricaContenutiCtl -- FunzioniGeneriche
+
+GestioneModificaContenutiCtl -- Navigazione
+GestioneModificaContenutiCtl -- Sessione
+GestioneModificaContenutiCtl -- DBMSBoundary
+GestioneModificaContenutiCtl -- FunzioniGeneriche
+
+DBMSBoundary -- QueryDBMS
+QueryDBMS -- Database
+
+@enduml

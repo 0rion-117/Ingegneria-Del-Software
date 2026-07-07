@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="it.afam.view.ViewProviderBoundary" styleClass="root">
+            fx:controller="it.afam.view.ProviderBoundaryController" styleClass="root">
     <padding><Insets top="42" right="42" bottom="42" left="42"/></padding>
     <center>
         <VBox alignment="CENTER" maxWidth="460" spacing="18" BorderPane.alignment="CENTER">

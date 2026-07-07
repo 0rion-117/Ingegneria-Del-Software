@@ -1,0 +1,103 @@
+@startuml sd_CreaCartella
+title <b>sd CreaCartella</b>
+
+actor "Studente" as Studente
+boundary "GestioneCartelle" as GestioneCartelle
+boundary "FormGestioneCartella" as FormGestioneCartella
+control "GestioneCreaCartellaCtl" as GestioneCreaCartellaCtl
+entity "Cartella" as EntityCartella
+boundary "PannelloErrore" as PannelloErrore
+boundary "PannelloAvviso" as PannelloAvviso
+boundary "DBMSBoundary" as DBMSBoundary
+actor "DBMS" as DBMS
+
+activate Studente
+Studente -> GestioneCartelle : 1: ClickCreaCartella()
+activate GestioneCartelle
+GestioneCartelle -> GestioneCreaCartellaCtl : 1.1: AvviaCreaCartella()
+activate GestioneCreaCartellaCtl
+GestioneCreaCartellaCtl -> DBMSBoundary : 2.1: RichiediContenutiPortfolio(idStudente)
+activate DBMSBoundary
+DBMSBoundary -> DBMS : 2.2: querySelectContenutiPortfolio(idStudente)
+activate DBMS
+DBMS --> DBMSBoundary : listaContenuti
+DBMSBoundary --> GestioneCreaCartellaCtl : listaContenuti
+Deactivate DBMS
+Deactivate DBMSBoundary
+
+GestioneCreaCartellaCtl -> GestioneCreaCartellaCtl : 2.3: contenutiPresenti = VerificaPresenzaContenuti(listaContenuti)
+
+alt 3: contenutiPresenti = Falso
+    GestioneCreaCartellaCtl -> PannelloAvviso : 3.1: MostraPannelloAvviso("Nessun contenuto disponibile nel Portfolio")
+    activate PannelloAvviso
+    Studente -> PannelloAvviso : 3.2: ClickChiudi()
+    PannelloAvviso -> PannelloAvviso : 3.3: ChiudiPannello()
+    destroy PannelloAvviso
+    GestioneCreaCartellaCtl -> GestioneCartelle : 3.4: MostraGestioneCartelle()
+else 4: contenutiPresenti = Vero
+    GestioneCreaCartellaCtl -> FormGestioneCartella : 4.1: MostraFormGestioneCartella(listaContenuti)
+    activate FormGestioneCartella
+    Studente -> FormGestioneCartella : 4.2: SelezionaContenuti(listaIdContenuti)
+    Studente -> FormGestioneCartella : 4.3: InserisciNomeCartella(nomeCartella)
+    Studente -> FormGestioneCartella : 4.4: ClickConferma()
+    FormGestioneCartella -> GestioneCreaCartellaCtl : 4.4.1: InviaDatiCartella(nomeCartella, listaIdContenuti)
+    GestioneCreaCartellaCtl -> DBMSBoundary : 4.5.1: RichiediVerificaNomeCartella(nomeCartella)
+    activate DBMSBoundary
+    DBMSBoundary -> DBMS : 4.5.2: querySelectCartellaPerNome(nomeCartella)
+    activate DBMS
+    DBMS --> DBMSBoundary : esitoNomeCartella
+    DBMSBoundary --> GestioneCreaCartellaCtl : esitoNomeCartella
+    deactivate DBMS
+    deactivate DBMSBoundary
+    loop 4.6: esitoNomeCartella = Vero
+        GestioneCreaCartellaCtl -> PannelloErrore : 4.6.1: MostraPannelloErrore("Cartella già esistente")
+        activate PannelloErrore
+        Studente -> PannelloErrore : 4.6.2: ClickChiudi()
+        PannelloErrore -> PannelloErrore : 4.6.3: ChiudiPannello()
+        destroy PannelloErrore
+        Studente -> FormGestioneCartella : 4.6.4: InserisciNomeCartella(nomeCartella)
+        Studente -> FormGestioneCartella : 4.6.5: ClickConferma()
+        FormGestioneCartella -> GestioneCreaCartellaCtl : 4.6.5.1: InviaNomeCartella(nomeCartella)
+        GestioneCreaCartellaCtl -> DBMSBoundary : 4.6.6.1: RichiediVerificaNomeCartella(nomeCartella)
+        activate DBMSBoundary
+        DBMSBoundary -> DBMS : 4.6.6.2: querySelectCartellaPerNome(nomeCartella)
+        activate DBMS
+        DBMS --> DBMSBoundary : esitoNomeCartella
+        DBMSBoundary --> GestioneCreaCartellaCtl : esitoNomeCartella
+        deactivate DBMS
+        deactivate DBMSBoundary
+    end
+    GestioneCreaCartellaCtl -> EntityCartella : 4.7.0: CreaCartella(nomeCartella, listaIdContenuti)
+    activate EntityCartella
+    deactivate EntityCartella
+    GestioneCreaCartellaCtl -> DBMSBoundary : 4.7.1: RichiediCreazioneCartella(nomeCartella, listaIdContenuti)
+    activate DBMSBoundary
+    DBMSBoundary -> DBMS : 4.7.2: queryInsertCartella(nomeCartella, listaIdContenuti)
+    activate DBMS
+    DBMS --> DBMSBoundary : esitoCreazioneCartella
+    DBMSBoundary --> GestioneCreaCartellaCtl : esitoCreazioneCartella
+    deactivate DBMS
+    deactivate DBMSBoundary
+    alt 4.8: esitoCreazioneCartella = Falso
+        GestioneCreaCartellaCtl -> PannelloErrore : 4.8.1: MostraPannelloErrore("Errore durante la creazione")
+        activate PannelloErrore
+        Studente -> PannelloErrore : 4.8.2: ClickChiudi()
+        PannelloErrore -> PannelloErrore : 4.8.3: ChiudiPannello()
+        destroy PannelloErrore
+        GestioneCreaCartellaCtl -> GestioneCartelle : 4.8.4: MostraGestioneCartelle()
+    else 4.9: esitoCreazioneCartella = Vero
+        GestioneCreaCartellaCtl -> PannelloAvviso : 4.9.1: MostraPannelloAvviso("Creazione Avvenuta")
+        activate PannelloAvviso
+        Studente -> PannelloAvviso : 4.9.2: ClickChiudi()
+        PannelloAvviso -> PannelloAvviso : 4.9.3: ChiudiPannello()
+        destroy PannelloAvviso
+        GestioneCreaCartellaCtl -> GestioneCartelle : 4.9.4: MostraGestioneCartelleAggiornata()
+    end
+    deactivate FormGestioneCartella
+end
+
+deactivate GestioneCreaCartellaCtl
+deactivate GestioneCartelle
+deactivate Studente
+
+@enduml

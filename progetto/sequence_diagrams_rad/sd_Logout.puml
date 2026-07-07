@@ -1,0 +1,22 @@
+@startuml sd_Logout
+title <b>sd Logout</b>
+
+actor "Studente" as Studente
+boundary "InterfacciaPrincipaleStudente" as InterfacciaPrincipaleStudente
+control "GestioneLogoutCtl" as GestioneLogoutCtl
+boundary "ModuloLogin" as ModuloLogin
+
+activate Studente
+Studente -> InterfacciaPrincipaleStudente : 1: ClickLogout()
+activate InterfacciaPrincipaleStudente
+InterfacciaPrincipaleStudente -> GestioneLogoutCtl : 1.1: AvviaLogout()
+activate GestioneLogoutCtl
+GestioneLogoutCtl -> GestioneLogoutCtl : 2: TerminaSessioneStudente()
+GestioneLogoutCtl -> ModuloLogin : 3: MostraModuloLogin()
+activate ModuloLogin
+deactivate ModuloLogin
+deactivate GestioneLogoutCtl
+deactivate InterfacciaPrincipaleStudente
+deactivate Studente
+
+@enduml

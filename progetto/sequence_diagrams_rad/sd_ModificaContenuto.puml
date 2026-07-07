@@ -1,0 +1,74 @@
+@startuml sd_ModificaContenuto
+title <b>sd ModificaContenuto</b>
+
+actor "Studente" as Studente
+boundary "InterfacciaPrincipaleStudente" as InterfacciaPrincipaleStudente
+boundary "FormContenuto" as FormContenuto
+control "GestioneModificaContenutiCtl" as GestioneModificaContenutiCtl
+entity "Contenuto" as EntityContenuto
+boundary "PannelloErrore" as PannelloErrore
+boundary "PannelloAvviso" as PannelloAvviso
+boundary "DBMSBoundary" as DBMSBoundary
+actor "DBMS" as DBMS
+
+activate Studente
+Studente -> InterfacciaPrincipaleStudente : 1: ClickModificaContenuto(idContenuto)
+activate InterfacciaPrincipaleStudente
+InterfacciaPrincipaleStudente -> GestioneModificaContenutiCtl : 1.1: AvviaModificaContenuto(idContenuto)
+activate GestioneModificaContenutiCtl
+GestioneModificaContenutiCtl -> DBMSBoundary : 1.2: RichiediContenuto(idContenuto)
+activate DBMSBoundary
+DBMSBoundary -> DBMS : 1.3: querySelectContenuto(idContenuto)
+activate DBMS
+DBMS --> DBMSBoundary : contenuto
+DBMSBoundary --> GestioneModificaContenutiCtl : contenuto
+Deactivate DBMS
+Deactivate DBMSBoundary
+GestioneModificaContenutiCtl -> FormContenuto : 2: MostraFormContenutoPrecompilato(contenuto)
+activate FormContenuto
+Studente -> FormContenuto : 3: ModificaCampiContenuto(file, titolo, descrizione, visibilita)
+Studente -> FormContenuto : 4: ClickConferma()
+FormContenuto -> GestioneModificaContenutiCtl : 4.1: InviaDatiModificati(idContenuto, file, titolo, descrizione, visibilita)
+alt 5: modificaInCorso = Vero
+    GestioneModificaContenutiCtl -> PannelloAvviso : 5.1: MostraPannelloAvviso("Modifica gia in corso")
+    activate PannelloAvviso
+    Studente -> PannelloAvviso : 5.2: ClickChiudi()
+    PannelloAvviso -> PannelloAvviso : 5.3: ChiudiPannello()
+    destroy PannelloAvviso
+else 5: modificaInCorso = Falso
+GestioneModificaContenutiCtl -> GestioneModificaContenutiCtl : 5: modificaValida = ElaboraDatiModificati(file, titolo, descrizione, visibilita)
+
+alt 6: modificaValida = Falso
+    GestioneModificaContenutiCtl -> PannelloErrore : 6.1: MostraPannelloErrore("Errore durante la modifica")
+    activate PannelloErrore
+    Studente -> PannelloErrore : 6.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 6.3: ChiudiPannello()
+    destroy PannelloErrore
+    GestioneModificaContenutiCtl -> InterfacciaPrincipaleStudente : 6.4: MostraInterfacciaPrincipaleStudente()
+else 7: modificaValida = Vero
+    GestioneModificaContenutiCtl -> EntityContenuto : 7.0: AggiornaContenuto(idContenuto, file, titolo, descrizione, visibilita)
+    activate EntityContenuto
+    deactivate EntityContenuto
+    GestioneModificaContenutiCtl -> DBMSBoundary : 7.1.1: RichiediAggiornamentoContenuto(idContenuto, file, titolo, descrizione, visibilita)
+    activate DBMSBoundary
+    DBMSBoundary -> DBMS : 7.1.2: queryUpdateContenuto(idContenuto, file, titolo, descrizione, visibilita)
+    activate DBMS
+    DBMS --> DBMSBoundary : esitoAggiornamentoContenuto
+    DBMSBoundary --> GestioneModificaContenutiCtl : esitoAggiornamentoContenuto
+    deactivate DBMS
+    deactivate DBMSBoundary
+    GestioneModificaContenutiCtl -> PannelloAvviso : 7.2: MostraPannelloAvviso("Modifica avvenuta")
+    activate PannelloAvviso
+    Studente -> PannelloAvviso : 7.3: ClickChiudi()
+    PannelloAvviso -> PannelloAvviso : 7.4: ChiudiPannello()
+    destroy PannelloAvviso
+    GestioneModificaContenutiCtl -> InterfacciaPrincipaleStudente : 7.5: MostraInterfacciaPrincipaleStudenteAggiornata()
+end
+end
+
+deactivate FormContenuto
+deactivate GestioneModificaContenutiCtl
+deactivate InterfacciaPrincipaleStudente
+deactivate Studente
+
+@enduml

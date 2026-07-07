@@ -1,0 +1,46 @@
+@startuml sd_Verifica2FA
+title <b>sd Verifica2FA</b>
+
+actor "Studente" as Studente
+control "GestioneVerifica2FACtl" as GestioneVerifica2FACtl
+boundary "FormVerifica2FA" as FormVerifica2FA
+boundary "PannelloErrore" as PannelloErrore
+boundary "PannelloAvviso" as PannelloAvviso
+boundary "InterfacciaPrincipaleStudente" as InterfacciaPrincipaleStudente
+
+activate GestioneVerifica2FACtl
+GestioneVerifica2FACtl -> GestioneVerifica2FACtl : 1: GeneraCodiceNumericoTemporaneo()
+GestioneVerifica2FACtl -> GestioneVerifica2FACtl : 2: InviaCodiceEmail(codiceTemporaneo)
+GestioneVerifica2FACtl -> FormVerifica2FA : 3: MostraFormVerifica2FA()
+activate FormVerifica2FA
+activate Studente
+Studente -> FormVerifica2FA : 4: InserisciCodice(codiceInserito)
+Studente -> FormVerifica2FA : 5: ClickVerifica()
+FormVerifica2FA -> GestioneVerifica2FACtl : 5.1: InviaCodice(codiceInserito)
+GestioneVerifica2FACtl -> GestioneVerifica2FACtl : 6: codiceCorretto = VerificaCodice(codiceInserito, codiceTemporaneo)
+
+loop 7: codiceCorretto = Falso
+    GestioneVerifica2FACtl -> PannelloErrore : 7.1: MostraPannelloErrore("Codice non corrispondente")
+    activate PannelloErrore
+    Studente -> PannelloErrore : 7.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 7.3: ChiudiPannello()
+    destroy PannelloErrore
+    Studente -> FormVerifica2FA : 7.4: InserisciCodice(codiceInserito)
+    Studente -> FormVerifica2FA : 7.5: ClickVerifica()
+    FormVerifica2FA -> GestioneVerifica2FACtl : 7.5.1: InviaCodice(codiceInserito)
+    GestioneVerifica2FACtl -> GestioneVerifica2FACtl : 7.5.2: codiceCorretto = VerificaCodice(codiceInserito, codiceTemporaneo)
+end
+
+GestioneVerifica2FACtl -> PannelloAvviso : 8: MostraPannelloAvviso("Avvenuta autenticazione")
+activate PannelloAvviso
+Studente -> PannelloAvviso : 8.1: ClickChiudi()
+PannelloAvviso -> PannelloAvviso : 8.2: ChiudiPannello()
+destroy PannelloAvviso
+GestioneVerifica2FACtl -> InterfacciaPrincipaleStudente : 9: MostraInterfacciaPrincipaleStudente()
+activate InterfacciaPrincipaleStudente
+deactivate InterfacciaPrincipaleStudente
+deactivate Studente
+deactivate FormVerifica2FA
+deactivate GestioneVerifica2FACtl
+
+@enduml

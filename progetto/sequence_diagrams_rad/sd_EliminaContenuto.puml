@@ -1,0 +1,55 @@
+@startuml sd_EliminaContenuto
+title <b>sd EliminaContenuto</b>
+
+actor "Studente" as Studente
+boundary "InterfacciaPrincipaleStudente" as InterfacciaPrincipaleStudente
+control "GestioneEliminaContenutiCtl" as GestioneEliminaContenutiCtl
+entity "Contenuto" as EntityContenuto
+boundary "PannelloErrore" as PannelloErrore
+boundary "PannelloAvviso" as PannelloAvviso
+boundary "DBMSBoundary" as DBMSBoundary
+actor "DBMS" as DBMS
+
+activate Studente
+Studente -> InterfacciaPrincipaleStudente : 1: ClickEliminaContenuto(idContenuto)
+activate InterfacciaPrincipaleStudente
+InterfacciaPrincipaleStudente -> GestioneEliminaContenutiCtl : 1.1: AvviaEliminaContenuto(idContenuto)
+activate GestioneEliminaContenutiCtl
+GestioneEliminaContenutiCtl -> PannelloAvviso : 2: MostraPannelloAvviso("Vuoi eliminare il Contenuto selezionato?")
+activate PannelloAvviso
+Studente -> PannelloAvviso : 3: ClickConferma()
+PannelloAvviso -> PannelloAvviso : 3.1: ChiudiPannello()
+destroy PannelloAvviso
+GestioneEliminaContenutiCtl -> GestioneEliminaContenutiCtl : 4: eliminazioneElaborata = ElaboraRichiestaEliminazione(idContenuto)
+
+alt 5: eliminazioneElaborata = Falso
+    GestioneEliminaContenutiCtl -> PannelloErrore : 5.1: MostraPannelloErrore("errore durante l'eliminazione")
+    activate PannelloErrore
+    Studente -> PannelloErrore : 5.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 5.3: ChiudiPannello()
+    destroy PannelloErrore
+    GestioneEliminaContenutiCtl -> InterfacciaPrincipaleStudente : 5.4: MostraInterfacciaPrincipaleStudente()
+else 6: eliminazioneElaborata = Vero
+    GestioneEliminaContenutiCtl -> EntityContenuto : 6.0: EliminaContenuto(idContenuto)
+    activate EntityContenuto
+    deactivate EntityContenuto
+    GestioneEliminaContenutiCtl -> DBMSBoundary : 6.1.1: RichiediEliminazioneContenuto(idContenuto)
+    activate DBMSBoundary
+    DBMSBoundary -> DBMS : 6.1.2: queryDeleteContenuto(idContenuto)
+    activate DBMS
+    DBMS --> DBMSBoundary : esitoEliminazioneContenuto
+    DBMSBoundary --> GestioneEliminaContenutiCtl : esitoEliminazioneContenuto
+    deactivate DBMS
+    deactivate DBMSBoundary
+    GestioneEliminaContenutiCtl -> PannelloAvviso : 6.2: MostraPannelloAvviso("eliminazione avvenuta")
+    Studente -> PannelloAvviso : 6.3: ClickChiudi()
+    PannelloAvviso -> PannelloAvviso : 6.4: ChiudiPannello()
+    destroy PannelloAvviso
+    GestioneEliminaContenutiCtl -> InterfacciaPrincipaleStudente : 6.5: MostraInterfacciaPrincipaleStudenteAggiornata()
+end
+
+deactivate GestioneEliminaContenutiCtl
+deactivate InterfacciaPrincipaleStudente
+deactivate Studente
+
+@enduml

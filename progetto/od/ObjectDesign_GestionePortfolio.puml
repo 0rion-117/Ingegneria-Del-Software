@@ -1,0 +1,173 @@
+@startuml ObjectDesign_GestionePortfolio
+' ============================================================
+'  Object Design - Gestione Portfolio
+'  Derivato dal Class Diagram omonimo.
+'  Aggiornato con GestioneVisualizzaPortfolioCtl,
+'  metodi anti doppio invio e caricamento portfolio.
+' ============================================================
+
+skinparam dpi 100
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 45
+skinparam ranksep 55
+skinparam padding 2
+hide circle
+
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #888888
+  BorderThickness 1
+  ArrowColor #888888
+  FontColor #000000
+  FontName SansSerif
+  FontSize 12
+  AttributeFontColor #000000
+  AttributeFontName SansSerif
+  AttributeFontSize 12
+  StereotypeFontColor #000000
+}
+
+title <b>Object Design - Gestione Portfolio</b>
+
+package "pkg" {
+
+class "InterfacciaPrincipaleStudente" as InterfacciaPrincipaleStudente <<boundary>> {
+  - idContenuto : int
+  + ClickCaricaNuovoContenuto() : void
+  + ClickModificaContenuto(idContenuto : int) : void
+  + ClickContenuto(idContenuto : int) : void
+  + ClickEliminaContenuto(idContenuto : int) : void
+  + MostraInterfacciaPrincipaleStudente() : void
+  + MostraInterfacciaPrincipaleStudenteAggiornata() : void
+  + MostraSchermataPrecedente() : void
+}
+
+class "FormContenuto" as FormContenuto <<boundary>> {
+  - file : String
+  - titolo : String
+  - descrizione : String
+  - visibilita : String
+  + MostraFormContenuto(file : String, titolo : String, descrizione : String, visibilita : String) : void
+  + MostraFormContenutoPrecompilato(contenuto : Contenuto) : void
+  + InserisciDatiContenuto(file : String, titolo : String, descrizione : String, visibilita : String) : void
+  + ModificaCampiContenuto(file : String, titolo : String, descrizione : String, visibilita : String) : void
+  + CompilaTitolo(titolo : String) : void
+  + SelezionaLivelloVisibilita(visibilita : String) : void
+  + ClickConferma() : void
+}
+
+class "GestioneCaricaContenutiCtl" as GestioneCaricaContenutiCtl <<control>> {
+  - caricamentoInCorso : boolean
+  - file : String
+  - titolo : String
+  - descrizione : String
+  - visibilita : String
+  + AvviaCaricaContenuto() : void
+  + InviaDatiContenuto(file : String, titolo : String, descrizione : String, visibilita : String) : void
+  - InviaDatiContenutoElaborati(file : String, titolo : String, descrizione : String, visibilita : String) : void
+  + ElaboraDatiContenuto(file : String, titolo : String, descrizione : String, visibilita : String) : boolean
+  + VerificaTitoloNonVuoto(titolo : String) : boolean
+  + VerificaVisibilitaSelezionata(visibilita : String) : boolean
+  - iniziaCaricamento() : boolean
+  - terminaCaricamento() : void
+}
+
+class "GestioneModificaContenutiCtl" as GestioneModificaContenutiCtl <<control>> {
+  - modificaInCorso : boolean
+  - idContenuto : int
+  - file : String
+  - titolo : String
+  - descrizione : String
+  - visibilita : String
+  + AvviaModificaContenuto(idContenuto : int) : void
+  + InviaDatiModificati(idContenuto : int, file : String, titolo : String, descrizione : String, visibilita : String) : void
+  - InviaDatiModificatiElaborati(idContenuto : int, file : String, titolo : String, descrizione : String, visibilita : String) : void
+  + ElaboraDatiModificati(file : String, titolo : String, descrizione : String, visibilita : String) : boolean
+  - iniziaModifica() : boolean
+  - terminaModifica() : void
+}
+
+class "GestioneVisualizzaPortfolioCtl" as GestioneVisualizzaPortfolioCtl <<control>> {
+  + AvviaVisualizzaPortfolio(idStudente : int) : List<Contenuto>
+}
+
+class "GestioneVisualizzaContenutoCtl" as GestioneVisualizzaContenutoCtl <<control>> {
+  - idContenuto : int
+  + AvviaVisualizzaContenuto(idContenuto : int) : void
+  + VerificaRecuperoContenuto(contenuto : Contenuto) : boolean
+}
+
+class "GestioneEliminaContenutiCtl" as GestioneEliminaContenutiCtl <<control>> {
+  - idContenuto : int
+  + AvviaEliminaContenuto(idContenuto : int) : void
+  + ElaboraRichiestaEliminazione(idContenuto : int) : boolean
+}
+
+class "Contenuto" as EntityContenuto <<entity>> {
+  - idContenuto : int
+  - file : String
+  - titolo : String
+  - descrizione : String
+  - visibilita : String
+  + CreaContenuto(file : String, titolo : String, descrizione : String, visibilita : String) : void
+  + AggiornaContenuto(idContenuto : int, file : String, titolo : String, descrizione : String, visibilita : String) : void
+  + EliminaContenuto(idContenuto : int) : void
+}
+
+class "PaginaContenuto" as PaginaContenuto <<boundary>> {
+  - contenuto : Contenuto
+  + MostraPaginaContenuto(contenuto : Contenuto) : void
+}
+
+class "PannelloErrore" as PannelloErrore <<boundary>> {
+  - messaggio : String
+  + MostraPannelloErrore(messaggio : String) : void
+  + ClickChiudi() : void
+  + ChiudiPannello() : void
+}
+
+class "PannelloAvviso" as PannelloAvviso <<boundary>> {
+  - messaggio : String
+  + MostraPannelloAvviso(messaggio : String) : void
+  + ClickConferma() : void
+  + ClickChiudi() : void
+  + ChiudiPannello() : void
+}
+
+class "DBMSBoundary" as DBMSBoundary <<boundary>> {
+  + RichiediSalvataggioContenuto(file : String, titolo : String, descrizione : String, visibilita : String) : boolean
+  + RichiediContenuto(idContenuto : int) : Contenuto
+  + RichiediAggiornamentoContenuto(idContenuto : int, file : String, titolo : String, descrizione : String, visibilita : String) : boolean
+  + RichiediEliminazioneContenuto(idContenuto : int) : boolean
+  + RichiediContenutiPortfolio(idStudente : int) : List<Contenuto>
+}
+
+class "DBMS" as DBMS <<actor>> {
+  + queryInsertContenuto(file : String, titolo : String, descrizione : String, visibilita : String) : boolean
+  + querySelectContenuto(idContenuto : int) : Contenuto
+  + queryUpdateContenuto(idContenuto : int, file : String, titolo : String, descrizione : String, visibilita : String) : boolean
+  + queryDeleteContenuto(idContenuto : int) : boolean
+  + querySelectContenutiPortfolio(idStudente : int) : List<Contenuto>
+}
+
+' === Object Design in stile ESEMPIO: nessuna associazione visibile ===
+' === Disposizione a griglia su 2 colonne tramite link invisibili ===
+InterfacciaPrincipaleStudente -[hidden]down- FormContenuto
+FormContenuto -[hidden]down- GestioneCaricaContenutiCtl
+GestioneCaricaContenutiCtl -[hidden]down- GestioneModificaContenutiCtl
+GestioneModificaContenutiCtl -[hidden]down- GestioneVisualizzaPortfolioCtl
+GestioneVisualizzaPortfolioCtl -[hidden]down- GestioneVisualizzaContenutoCtl
+GestioneVisualizzaContenutoCtl -[hidden]down- GestioneEliminaContenutiCtl
+
+EntityContenuto -[hidden]down- PaginaContenuto
+PaginaContenuto -[hidden]down- PannelloErrore
+PannelloErrore -[hidden]down- PannelloAvviso
+PannelloAvviso -[hidden]down- DBMSBoundary
+DBMSBoundary -[hidden]down- DBMS
+
+InterfacciaPrincipaleStudente -[hidden]right- EntityContenuto
+
+}
+
+@enduml

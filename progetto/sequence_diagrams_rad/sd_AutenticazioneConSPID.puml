@@ -1,0 +1,71 @@
+@startuml sd_AutenticazioneConSPID
+title <b>sd AutenticazioneConSPID</b>
+
+actor "Studente" as Studente
+boundary "ModuloLogin" as ModuloLogin
+boundary "ElencoProviderBoundary" as ElencoProviderBoundary
+boundary "ProviderBoundary" as ProviderBoundary
+control "GestioneAutenticazioneSPIDCtl" as GestioneAutenticazioneSPIDCtl
+boundary "PannelloErrore" as PannelloErrore
+boundary "PannelloAvviso" as PannelloAvviso
+boundary "InterfacciaPrincipaleStudente" as InterfacciaPrincipaleStudente
+boundary "DBMSBoundary" as DBMSBoundary
+actor "Fornitore di Identità Digitale" as FornitoreIdentitaDigitale
+actor "DBMS" as DBMS
+
+activate Studente
+Studente -> ModuloLogin : 1: ClickAccediConSPID()
+activate ModuloLogin
+ModuloLogin -> GestioneAutenticazioneSPIDCtl : 1.1: AvviaAutenticazioneSPID()
+deactivate ModuloLogin
+activate GestioneAutenticazioneSPIDCtl
+GestioneAutenticazioneSPIDCtl -> ElencoProviderBoundary : 2: MostraElencoProviderBoundary()
+activate ElencoProviderBoundary
+Studente -> ElencoProviderBoundary : 3: SelezionaFornitoreIdentitaDigitale(provider)
+ElencoProviderBoundary -> GestioneAutenticazioneSPIDCtl : 3.1: InviaProviderSelezionato(provider)
+deactivate ElencoProviderBoundary
+
+GestioneAutenticazioneSPIDCtl -> ProviderBoundary : 4: MostraProviderBoundary(provider)
+activate ProviderBoundary
+Studente -> ProviderBoundary : 5: CompilaCredenzialiProvider(email, password)
+Studente -> ProviderBoundary : 6: ClickConferma()
+ProviderBoundary -> GestioneAutenticazioneSPIDCtl : 6.1: InviaCredenzialiProvider(email, password)
+GestioneAutenticazioneSPIDCtl -> ProviderBoundary : 7.1: RichiediAutenticazioneProvider(email, password)
+ProviderBoundary -> FornitoreIdentitaDigitale : 7.2: VerificaCredenzialiProvider(email, password)
+activate FornitoreIdentitaDigitale
+FornitoreIdentitaDigitale --> ProviderBoundary : 8: codiceFiscale
+ProviderBoundary --> GestioneAutenticazioneSPIDCtl : 8.1: codiceFiscale
+Deactivate FornitoreIdentitaDigitale
+deactivate ProviderBoundary
+
+GestioneAutenticazioneSPIDCtl -> DBMSBoundary : 9.1: RichiediVerificaCodiceFiscale(codiceFiscale)
+activate DBMSBoundary
+DBMSBoundary -> DBMS : 9.2: querySelectStudentePerCodiceFiscale(codiceFiscale)
+activate DBMS
+DBMS --> DBMSBoundary : esitoVerificaCodiceFiscale
+DBMSBoundary --> GestioneAutenticazioneSPIDCtl : esitoVerificaCodiceFiscale
+Deactivate DBMS
+Deactivate DBMSBoundary
+
+alt 10: esitoVerificaCodiceFiscale = Falso
+    GestioneAutenticazioneSPIDCtl -> PannelloErrore : 10.1: MostraPannelloErrore("Studente non registrato")
+    activate PannelloErrore
+    Studente -> PannelloErrore : 10.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 10.3: ChiudiPannello()
+    destroy PannelloErrore
+    GestioneAutenticazioneSPIDCtl -> ModuloLogin : 10.4: MostraModuloLogin()
+else 11: esitoVerificaCodiceFiscale = Vero
+    GestioneAutenticazioneSPIDCtl -> PannelloAvviso : 11.1: MostraPannelloAvviso("Avvenuta autenticazione")
+    activate PannelloAvviso
+    Studente -> PannelloAvviso : 11.2: ClickChiudi()
+    PannelloAvviso -> PannelloAvviso : 11.3: ChiudiPannello()
+    destroy PannelloAvviso
+    GestioneAutenticazioneSPIDCtl -> InterfacciaPrincipaleStudente : 11.4: MostraInterfacciaPrincipaleStudente()
+    activate InterfacciaPrincipaleStudente
+    deactivate InterfacciaPrincipaleStudente
+end
+
+deactivate GestioneAutenticazioneSPIDCtl
+deactivate Studente
+
+@enduml

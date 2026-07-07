@@ -1,0 +1,61 @@
+@startuml sd_RicezioneNotificaVisualizzazione
+title <b>sd RicezioneNotificaVisualizzazione</b>
+
+actor "Studente" as Studente
+control "GestioneNotificheCtl" as GestioneNotificheCtl
+entity "Notifica" as EntityNotifica
+boundary "BannerNotifica" as BannerNotifica
+boundary "PannelloErrore" as PannelloErrore
+boundary "SchermataCorrente" as SchermataCorrente
+boundary "DBMSBoundary" as DBMSBoundary
+actor "DBMS" as DBMS
+
+'=== Caso d'uso asincrono: attivazione autonoma ===
+activate GestioneNotificheCtl
+GestioneNotificheCtl -> GestioneNotificheCtl : 1: RilevaNotificaDaLeggere(idStudente)
+GestioneNotificheCtl -> DBMSBoundary : 2.1: RichiediDettagliNotifica(idStudente)
+activate DBMSBoundary
+DBMSBoundary -> DBMS : 2.2: querySelectNotificaDaLeggere(idStudente)
+activate DBMS
+DBMS --> DBMSBoundary : dettagliNotifica
+DBMSBoundary --> GestioneNotificheCtl : dettagliNotifica
+Deactivate DBMS
+Deactivate DBMSBoundary
+
+GestioneNotificheCtl -> GestioneNotificheCtl : 2.3: recuperoNotificaRiuscito = VerificaRecuperoNotifica(dettagliNotifica)
+
+alt 3: recuperoNotificaRiuscito = Falso
+    GestioneNotificheCtl -> PannelloErrore : 3.1: MostraPannelloErrore()
+    activate PannelloErrore
+    Studente -> PannelloErrore : 3.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 3.3: ChiudiPannello()
+    destroy PannelloErrore
+    GestioneNotificheCtl -> SchermataCorrente : 3.4: MostraSchermataCorrenteNonAggiornata()
+else 4: recuperoNotificaRiuscito = Vero
+    GestioneNotificheCtl -> EntityNotifica : 4.0: GetDettagliNotifica(dettagliNotifica)
+    activate EntityNotifica
+    EntityNotifica --> GestioneNotificheCtl : testoNotifica
+    deactivate EntityNotifica
+    GestioneNotificheCtl -> BannerNotifica : 4.1: MostraBannerNotifica(testoNotifica)
+    activate BannerNotifica
+    Studente -> BannerNotifica : 4.2: ClickChiudi()
+    BannerNotifica -> GestioneNotificheCtl : 4.2.1: PresaVisioneNotifica()
+    GestioneNotificheCtl -> BannerNotifica : 4.3: ChiudiBannerNotifica()
+    destroy BannerNotifica
+    GestioneNotificheCtl -> EntityNotifica : 4.4.0: SetStatoNotifica("Letta")
+    activate EntityNotifica
+    deactivate EntityNotifica
+    GestioneNotificheCtl -> DBMSBoundary : 4.4.1: RichiediAggiornamentoStatoNotifica(idNotifica, "Letta")
+    activate DBMSBoundary
+    DBMSBoundary -> DBMS : 4.4.2: queryUpdateStatoNotifica(idNotifica, "Letta")
+    activate DBMS
+    DBMS --> DBMSBoundary : esitoAggiornamentoNotifica
+    DBMSBoundary --> GestioneNotificheCtl : esitoAggiornamentoNotifica
+    deactivate DBMS
+    deactivate DBMSBoundary
+    GestioneNotificheCtl -> SchermataCorrente : 4.5: MostraSchermataCorrenteAggiornata()
+end
+
+deactivate GestioneNotificheCtl
+
+@enduml

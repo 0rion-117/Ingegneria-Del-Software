@@ -1,0 +1,53 @@
+@startuml sd_CercaProfilo
+title <b>sd CercaProfilo</b>
+
+actor "Ente/Valutatore" as EnteValutatore
+boundary "ModuloLogin" as ModuloLogin
+control "GestioneCercaProfiloCtl" as GestioneCercaProfiloCtl
+boundary "PaginaProfiloPubblico" as PaginaProfiloPubblico
+boundary "PannelloErrore" as PannelloErrore
+boundary "DBMSBoundary" as DBMSBoundary
+actor "DBMS" as DBMS
+
+activate EnteValutatore
+EnteValutatore -> ModuloLogin : 1: ClickBarraRicerca()
+activate ModuloLogin
+EnteValutatore -> ModuloLogin : 2: InserisciUsername(usernameStudente)
+EnteValutatore -> ModuloLogin : 3: ClickCerca()
+ModuloLogin -> GestioneCercaProfiloCtl : 3.1: InviaUsernameRicerca(usernameStudente)
+activate GestioneCercaProfiloCtl
+GestioneCercaProfiloCtl -> DBMSBoundary : 4.1: RichiediVerificaUsername(usernameStudente)
+activate DBMSBoundary
+DBMSBoundary -> DBMS : 4.2: querySelectStudentePerUsername(usernameStudente)
+activate DBMS
+DBMS --> DBMSBoundary : esitoVerificaUsername
+DBMSBoundary --> GestioneCercaProfiloCtl : esitoVerificaUsername
+Deactivate DBMS
+Deactivate DBMSBoundary
+
+alt 5: esitoVerificaUsername = Falso
+    GestioneCercaProfiloCtl -> PannelloErrore : 5.1: MostraPannelloErrore("Username non trovato")
+    activate PannelloErrore
+    EnteValutatore -> PannelloErrore : 5.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 5.3: ChiudiPannello()
+    destroy PannelloErrore
+    GestioneCercaProfiloCtl -> ModuloLogin : 5.4: MostraModuloLogin()
+else 6: esitoVerificaUsername = Vero
+    GestioneCercaProfiloCtl -> DBMSBoundary : 6.0.1: RichiediProfiloPubblico(usernameStudente)
+    activate DBMSBoundary
+    DBMSBoundary -> DBMS : 6.0.2: querySelectProfiloPubblico(usernameStudente)
+    activate DBMS
+    DBMS --> DBMSBoundary : profiloPubblico
+    DBMSBoundary --> GestioneCercaProfiloCtl : profiloPubblico
+    deactivate DBMS
+    deactivate DBMSBoundary
+    GestioneCercaProfiloCtl -> PaginaProfiloPubblico : 6.1: MostraPaginaProfiloPubblico(profiloPubblico)
+    activate PaginaProfiloPubblico
+    deactivate PaginaProfiloPubblico
+end
+
+deactivate GestioneCercaProfiloCtl
+deactivate ModuloLogin
+deactivate EnteValutatore
+
+@enduml

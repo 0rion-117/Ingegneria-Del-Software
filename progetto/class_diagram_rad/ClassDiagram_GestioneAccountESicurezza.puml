@@ -1,0 +1,332 @@
+@startuml ClassDiagram_GestioneAccountESicurezza
+' ============================================================
+'  Class Diagram - Gestione Account e Sicurezza
+'  Derivato fedelmente dai sequence diagram:
+'  Registrazione, Autenticazione, AutenticazioneConSPID,
+'  Verifica2FA, ModificaPassword, RecuperoPassword,
+'  Logout, Eliminazione
+' ============================================================
+skinparam dpi 100
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 45
+skinparam ranksep 55
+skinparam padding 2
+hide circle
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #888888
+  BorderThickness 1
+  ArrowColor #888888
+  FontColor #000000
+  FontName SansSerif
+  FontSize 12
+  AttributeFontColor #000000
+  AttributeFontName SansSerif
+  AttributeFontSize 12
+  StereotypeFontColor #000000
+}
+title <b>Class Diagram - Gestione Account e Sicurezza</b>
+
+class "ModuloLogin" as ModuloLogin <<boundary>> {
+  +ClickRegistrati()
+  +ClickAccedi()
+  +ClickAccediConSPID()
+  +SelezionaRecuperoPassword()
+  +MostraModuloLogin()
+}
+
+class "FormRegistrati" as FormRegistrati <<boundary>> {
+  -nome
+  -cognome
+  -email
+  -password
+  -confermaPassword
+  -dataNascita
+  -codiceFiscale
+  -username
+  +MostraFormRegistrati()
+  +CompilaCampiRegistrazione(nome, cognome, email, password, confermaPassword, dataNascita, codiceFiscale, username)
+  +CompilaEmail(email)
+  +CompilaPassword(password)
+  +CompilaConfermaPassword(confermaPassword)
+  +CompilaCodiceFiscale(codiceFiscale)
+  +CompilaUsername(username)
+  +ClickContinua()
+}
+
+class "GestioneRegistrazioneCtl" as GestioneRegistrazioneCtl <<control>> {
+  -nome
+  -cognome
+  -email
+  -password
+  -confermaPassword
+  -dataNascita
+  -codiceFiscale
+  -username
+  -passwordCifrata
+  +AvviaRegistrazione()
+  +InviaDatiRegistrazione(nome, cognome, email, password, confermaPassword, dataNascita, codiceFiscale, username)
+  +InviaEmail(email)
+  +InviaPassword(password)
+  +InviaPasswordConferma(password, confermaPassword)
+  +InviaCodiceFiscale(codiceFiscale)
+  +ValidaFormatoEmail(email)
+  +ValidaFormatoPassword(password)
+  +VerificaCorrispondenzaPassword(password, confermaPassword)
+  +ValidaFormatoCodiceFiscale(codiceFiscale)
+  +VerificaCodiceFiscalePresente(esitoVerificaDati)
+  +VerificaEmailPresente(esitoVerificaDati)
+  +VerificaUsernamePresente(esitoVerificaDati)
+  +VerificaDatiGiaPresenti(esitoVerificaDati)
+  +CriptaPassword(password)
+}
+
+class "FormAutenticati" as FormAutenticati <<boundary>> {
+  -email
+  -password
+  +MostraFormAutenticati()
+  +CompilaEmail(email)
+  +CompilaPassword(password)
+  +CompilaCampi(email, password)
+  +ClickContinua()
+}
+
+class "GestioneAutenticazioneCtl" as GestioneAutenticazioneCtl <<control>> {
+  -email
+  -password
+  -passwordCifrata
+  +AvviaAutenticazione()
+  +InviaCredenziali(email, password)
+  +ValidaFormatoEmail(email)
+  +InviaEmail(email)
+  +VerificaEmailRegistrata(esitoVerificaEmail)
+  +CriptaPassword(password)
+  +InviaPassword(password)
+  +VerificaPasswordCorretta(esitoVerificaPassword)
+}
+
+class "GestioneVerifica2FACtl" as GestioneVerifica2FACtl <<control>> {
+  -email
+  -codiceTemporaneo
+  -codiceInserito
+  +AvviaVerifica2FA(email)
+  +GeneraCodiceNumericoTemporaneo()
+  +InviaCodiceEmail(codiceTemporaneo)
+  +InviaCodice(codiceInserito)
+  +VerificaCodice(codiceInserito, codiceTemporaneo)
+}
+
+class "FormVerifica2FA" as FormVerifica2FA <<boundary>> {
+  -codiceInserito
+  +MostraFormVerifica2FA()
+  +InserisciCodice(codiceInserito)
+  +ClickVerifica()
+}
+
+class "GestioneAutenticazioneSPIDCtl" as GestioneAutenticazioneSPIDCtl <<control>> {
+  -provider
+  -email
+  -password
+  -codiceFiscale
+  +AvviaAutenticazioneSPID()
+  +InviaProviderSelezionato(provider)
+  +InviaCredenzialiProvider(email, password)
+}
+
+class "ElencoProviderBoundary" as ElencoProviderBoundary <<boundary>> {
+  -provider
+  +MostraElencoProviderBoundary()
+  +SelezionaFornitoreIdentitaDigitale(provider)
+}
+
+class "ProviderBoundary" as ProviderBoundary <<boundary>> {
+  -provider
+  -email
+  -password
+  +MostraProviderBoundary(provider)
+  +CompilaCredenzialiProvider(email, password)
+  +RichiediAutenticazioneProvider(email, password)
+  +ClickConferma()
+}
+
+class "Fornitore di Identita Digitale" as FornitoreIdentitaDigitale <<actor>> {
+  +VerificaCredenzialiProvider(email, password)
+}
+
+class "InterfacciaPrincipaleStudente" as InterfacciaPrincipaleStudente <<boundary>> {
+  +MostraInterfacciaPrincipaleStudente()
+  +ClickLogout()
+}
+
+class "GestioneProfilo" as GestioneProfilo <<boundary>> {
+  -password
+  +ClickModificaPassword()
+  +SelezionaEliminaAccount()
+  +RichiediPasswordConfermaIdentita()
+  +InserisciPassword(password)
+  +ClickConferma()
+  +MostraGestioneProfilo()
+}
+
+class "FormModificaPassword" as FormModificaPassword <<boundary>> {
+  -passwordCorrente
+  -nuovaPassword
+  -confermaNuovaPassword
+  +MostraFormModificaPassword()
+  +InserisciDatiPassword(passwordCorrente, nuovaPassword, confermaNuovaPassword)
+  +ClickConferma()
+}
+
+class "GestioneModificaPasswordCtl" as GestioneModificaPasswordCtl <<control>> {
+  -idStudente
+  -passwordCorrente
+  -nuovaPassword
+  -confermaNuovaPassword
+  -passwordCifrata
+  +AvviaModificaPassword()
+  +InviaDatiPassword(passwordCorrente, nuovaPassword, confermaNuovaPassword)
+  +ValidaNuovaPassword(passwordCorrente, nuovaPassword, confermaNuovaPassword)
+  +CriptaPassword(nuovaPassword)
+}
+
+class "FormRecuperoPassword" as FormRecuperoPassword <<boundary>> {
+  -email
+  +MostraFormRecuperoPassword()
+  +InserisciEmail(email)
+  +ClickConferma()
+}
+
+class "GestioneRecuperoPasswordCtl" as GestioneRecuperoPasswordCtl <<control>> {
+  -email
+  -tokenReset
+  +AvviaRecuperoPassword()
+  +InviaEmailRecupero(email)
+  +ValidaFormatoEmail(email)
+  +GeneraTokenUnivocoReset()
+  +InviaEmailLinkReset(email, tokenReset)
+}
+
+class "GestioneLogoutCtl" as GestioneLogoutCtl <<control>> {
+  +AvviaLogout()
+  +TerminaSessioneStudente()
+}
+
+class "GestioneEliminazioneAccountCtl" as GestioneEliminazioneAccountCtl <<control>> {
+  -idStudente
+  -password
+  +AvviaEliminazioneAccount()
+  +InviaPasswordEliminazione(password)
+}
+
+class "Studente" as EntityStudente <<entity>> {
+  -idStudente
+  -nome
+  -cognome
+  -email
+  -password
+  -dataNascita
+  -codiceFiscale
+  -username
+  +CreaStudente(nome, cognome, email, passwordCifrata, dataNascita, codiceFiscale, username)
+  +SetPassword(passwordCifrata)
+  +RimuoviDatiStudente(idStudente)
+}
+
+class "PannelloErrore" as PannelloErrore <<boundary>> {
+  -messaggio
+  +MostraPannelloErrore(messaggio)
+  +ClickChiudi()
+  +ChiudiPannello()
+}
+
+class "PannelloAvviso" as PannelloAvviso <<boundary>> {
+  -messaggio
+  +MostraPannelloAvviso(messaggio)
+  +ClickChiudi()
+  +ClickEliminaAccount()
+  +ChiudiPannello()
+}
+
+class "DBMSBoundary" as DBMSBoundary <<boundary>> {
+  +RichiediVerificaDatiRegistrazione(codiceFiscale, email, username)
+  +RichiediInserimentoStudente(nome, cognome, email, passwordCifrata, dataNascita, codiceFiscale, username)
+  +RichiediVerificaEmail(email)
+  +RichiediVerificaPassword(email, passwordCifrata)
+  +RichiediVerificaCodiceFiscale(codiceFiscale)
+  +RichiediAggiornamentoPassword(idStudente, passwordCifrata)
+  +RichiediVerificaAccountEmail(email)
+  +RichiediSalvataggioTokenReset(email, tokenReset)
+  +RichiediVerificaPassword(idStudente, password)
+  +RichiediEliminazioneStudente(idStudente)
+}
+
+class "DBMS" as DBMS <<actor>> {
+  +querySelectDatiRegistrazione(codiceFiscale, email, username)
+  +queryInsertStudente(nome, cognome, email, passwordCifrata, dataNascita, codiceFiscale, username)
+  +querySelectEmail(email)
+  +querySelectPassword(email, passwordCifrata)
+  +querySelectStudentePerCodiceFiscale(codiceFiscale)
+  +queryUpdatePassword(idStudente, passwordCifrata)
+  +querySelectAccountPerEmail(email)
+  +queryInsertTokenReset(email, tokenReset)
+  +querySelectPasswordStudente(idStudente, password)
+  +queryDeleteStudenteEDatiCollegati(idStudente)
+}
+
+' === Associazioni (scambio di messaggi tra classi) ===
+ModuloLogin -- GestioneRegistrazioneCtl
+ModuloLogin -- GestioneAutenticazioneCtl
+ModuloLogin -- GestioneAutenticazioneSPIDCtl
+ModuloLogin -- GestioneRecuperoPasswordCtl
+
+GestioneRegistrazioneCtl -- FormRegistrati
+GestioneRegistrazioneCtl -- PannelloErrore
+GestioneRegistrazioneCtl -- PannelloAvviso
+GestioneRegistrazioneCtl -- EntityStudente
+GestioneRegistrazioneCtl -- DBMSBoundary
+
+GestioneAutenticazioneCtl -- FormAutenticati
+GestioneAutenticazioneCtl -- PannelloErrore
+GestioneAutenticazioneCtl -- DBMSBoundary
+GestioneAutenticazioneCtl -- GestioneVerifica2FACtl
+
+GestioneVerifica2FACtl -- FormVerifica2FA
+GestioneVerifica2FACtl -- PannelloErrore
+GestioneVerifica2FACtl -- PannelloAvviso
+GestioneVerifica2FACtl -- InterfacciaPrincipaleStudente
+
+GestioneAutenticazioneSPIDCtl -- ElencoProviderBoundary
+GestioneAutenticazioneSPIDCtl -- ProviderBoundary
+GestioneAutenticazioneSPIDCtl -- DBMSBoundary
+GestioneAutenticazioneSPIDCtl -- PannelloErrore
+GestioneAutenticazioneSPIDCtl -- PannelloAvviso
+GestioneAutenticazioneSPIDCtl -- InterfacciaPrincipaleStudente
+ProviderBoundary -- FornitoreIdentitaDigitale
+
+GestioneProfilo -- GestioneModificaPasswordCtl
+GestioneProfilo -- GestioneEliminazioneAccountCtl
+
+GestioneModificaPasswordCtl -- FormModificaPassword
+GestioneModificaPasswordCtl -- EntityStudente
+GestioneModificaPasswordCtl -- PannelloErrore
+GestioneModificaPasswordCtl -- PannelloAvviso
+GestioneModificaPasswordCtl -- DBMSBoundary
+
+GestioneRecuperoPasswordCtl -- FormRecuperoPassword
+GestioneRecuperoPasswordCtl -- PannelloErrore
+GestioneRecuperoPasswordCtl -- PannelloAvviso
+GestioneRecuperoPasswordCtl -- DBMSBoundary
+
+InterfacciaPrincipaleStudente -- GestioneLogoutCtl
+GestioneLogoutCtl -- ModuloLogin
+
+GestioneEliminazioneAccountCtl -- PannelloAvviso
+GestioneEliminazioneAccountCtl -- PannelloErrore
+GestioneEliminazioneAccountCtl -- EntityStudente
+GestioneEliminazioneAccountCtl -- DBMSBoundary
+GestioneEliminazioneAccountCtl -- ModuloLogin
+
+DBMSBoundary -- DBMS
+
+@enduml

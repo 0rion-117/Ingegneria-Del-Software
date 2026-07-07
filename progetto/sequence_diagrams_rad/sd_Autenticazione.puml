@@ -1,0 +1,110 @@
+@startuml sd_Autenticazione
+title <b>sd Autenticazione</b>
+
+actor "Studente" as Studente
+boundary "ModuloLogin" as ModuloLogin
+boundary "FormAutenticati" as FormAutenticati
+control "GestioneAutenticazioneCtl" as GestioneAutenticazioneCtl
+control "GestioneVerifica2FACtl" as GestioneVerifica2FACtl
+boundary "PannelloErrore" as PannelloErrore
+boundary "DBMSBoundary" as DBMSBoundary
+actor "DBMS" as DBMS
+
+activate Studente
+Studente -> ModuloLogin : 1: ClickAccedi()
+activate ModuloLogin
+ModuloLogin -> GestioneAutenticazioneCtl : 1.1: AvviaAutenticazione()
+deactivate ModuloLogin
+activate GestioneAutenticazioneCtl
+GestioneAutenticazioneCtl -> FormAutenticati : 2: MostraFormAutenticati()
+activate FormAutenticati
+Studente -> FormAutenticati : 3.1: CompilaEmail(email)
+Studente -> FormAutenticati : 3.2: CompilaPassword(password)
+Studente -> FormAutenticati : 4: ClickContinua()
+FormAutenticati -> GestioneAutenticazioneCtl : 4.1: InviaCredenziali(email, password)
+GestioneAutenticazioneCtl -> GestioneAutenticazioneCtl : 5: formatoEmailValido = ValidaFormatoEmail(email)
+
+loop 6: formatoEmailValido = Falso
+    GestioneAutenticazioneCtl -> PannelloErrore : 6.1: MostraPannelloErrore("E-mail non valida")
+    activate PannelloErrore
+    Studente -> PannelloErrore : 6.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 6.3: ChiudiPannello()
+    destroy PannelloErrore
+    Studente -> FormAutenticati : 6.4: CompilaEmail(email)
+    Studente -> FormAutenticati : 6.5: ClickContinua()
+    FormAutenticati -> GestioneAutenticazioneCtl : 6.5.1: InviaEmail(email)
+    GestioneAutenticazioneCtl -> GestioneAutenticazioneCtl : 6.5.2: formatoEmailValido = ValidaFormatoEmail(email)
+end
+
+GestioneAutenticazioneCtl -> DBMSBoundary : 7.1: RichiediVerificaEmail(email)
+activate DBMSBoundary
+DBMSBoundary -> DBMS : 7.2: querySelectEmail(email)
+activate DBMS
+DBMS --> DBMSBoundary : esitoVerificaEmail
+DBMSBoundary --> GestioneAutenticazioneCtl : esitoVerificaEmail
+Deactivate DBMS
+Deactivate DBMSBoundary
+GestioneAutenticazioneCtl -> GestioneAutenticazioneCtl : 7.3: emailRegistrata = VerificaEmailRegistrata(esitoVerificaEmail)
+
+loop 8: emailRegistrata = Falso
+    GestioneAutenticazioneCtl -> PannelloErrore : 8.1: MostraPannelloErrore("Studente non registrato")
+    activate PannelloErrore
+    Studente -> PannelloErrore : 8.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 8.3: ChiudiPannello()
+    destroy PannelloErrore
+    Studente -> FormAutenticati : 8.4: CompilaCampi(email, password)
+    FormAutenticati -> GestioneAutenticazioneCtl : 8.4.1: InviaCredenziali(email, password)
+    GestioneAutenticazioneCtl -> DBMSBoundary : 8.5.1: RichiediVerificaEmail(email)
+    activate DBMSBoundary
+    DBMSBoundary -> DBMS : 8.5.2: querySelectEmail(email)
+    activate DBMS
+    DBMS --> DBMSBoundary : esitoVerificaEmail
+    DBMSBoundary --> GestioneAutenticazioneCtl : esitoVerificaEmail
+    deactivate DBMS
+    deactivate DBMSBoundary
+    GestioneAutenticazioneCtl -> GestioneAutenticazioneCtl : 8.6: emailRegistrata = VerificaEmailRegistrata(esitoVerificaEmail)
+end
+
+GestioneAutenticazioneCtl -> GestioneAutenticazioneCtl : 9: CriptaPassword(password)
+GestioneAutenticazioneCtl -> DBMSBoundary : 10.1: RichiediVerificaPassword(email, passwordCifrata)
+activate DBMSBoundary
+DBMSBoundary -> DBMS : 10.2: querySelectPassword(email, passwordCifrata)
+activate DBMS
+DBMS --> DBMSBoundary : esitoVerificaPassword
+DBMSBoundary --> GestioneAutenticazioneCtl : esitoVerificaPassword
+Deactivate DBMS
+Deactivate DBMSBoundary
+GestioneAutenticazioneCtl -> GestioneAutenticazioneCtl : 10.3: passwordCorretta = VerificaPasswordCorretta(esitoVerificaPassword)
+
+loop 11: passwordCorretta = Falso
+    GestioneAutenticazioneCtl -> PannelloErrore : 11.1: MostraPannelloErrore("Password errata")
+    activate PannelloErrore
+    Studente -> PannelloErrore : 11.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 11.3: ChiudiPannello()
+    destroy PannelloErrore
+    Studente -> FormAutenticati : 11.4: CompilaPassword(password)
+    FormAutenticati -> GestioneAutenticazioneCtl : 11.4.1: InviaPassword(password)
+    GestioneAutenticazioneCtl -> GestioneAutenticazioneCtl : 11.5: CriptaPassword(password)
+    GestioneAutenticazioneCtl -> DBMSBoundary : 11.6.1: RichiediVerificaPassword(email, passwordCifrata)
+    activate DBMSBoundary
+    DBMSBoundary -> DBMS : 11.6.2: querySelectPassword(email, passwordCifrata)
+    activate DBMS
+    DBMS --> DBMSBoundary : esitoVerificaPassword
+    DBMSBoundary --> GestioneAutenticazioneCtl : esitoVerificaPassword
+    deactivate DBMS
+    deactivate DBMSBoundary
+    GestioneAutenticazioneCtl -> GestioneAutenticazioneCtl : 11.7: passwordCorretta = VerificaPasswordCorretta(esitoVerificaPassword)
+end
+
+GestioneAutenticazioneCtl -> GestioneVerifica2FACtl : 12: AvviaVerifica2FA(email)
+activate GestioneVerifica2FACtl
+ref over GestioneVerifica2FACtl
+    include: Verifica 2FA
+end ref
+deactivate GestioneVerifica2FACtl
+
+deactivate FormAutenticati
+deactivate GestioneAutenticazioneCtl
+deactivate Studente
+
+@enduml

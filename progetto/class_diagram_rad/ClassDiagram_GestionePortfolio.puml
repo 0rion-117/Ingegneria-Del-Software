@@ -1,0 +1,182 @@
+@startuml ClassDiagram_GestionePortfolio
+' ============================================================
+'  Class Diagram - Gestione Portfolio
+'  Derivato fedelmente dai sequence diagram:
+'  CaricaContenuto, ModificaContenuto,
+'  VisualizzaContenuto, EliminaContenuto
+' ============================================================
+skinparam dpi 100
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 45
+skinparam ranksep 55
+skinparam padding 2
+hide circle
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #888888
+  BorderThickness 1
+  ArrowColor #888888
+  FontColor #000000
+  FontName SansSerif
+  FontSize 12
+  AttributeFontColor #000000
+  AttributeFontName SansSerif
+  AttributeFontSize 12
+  StereotypeFontColor #000000
+}
+title <b>Class Diagram - Gestione Portfolio</b>
+
+class "InterfacciaPrincipaleStudente" as InterfacciaPrincipaleStudente <<boundary>> {
+  -idContenuto
+  +ClickCaricaNuovoContenuto()
+  +ClickModificaContenuto(idContenuto)
+  +ClickContenuto(idContenuto)
+  +ClickEliminaContenuto(idContenuto)
+  +MostraInterfacciaPrincipaleStudente()
+  +MostraInterfacciaPrincipaleStudenteAggiornata()
+  +MostraSchermataPrecedente()
+}
+
+class "FormContenuto" as FormContenuto <<boundary>> {
+  -file
+  -titolo
+  -descrizione
+  -visibilita
+  +MostraFormContenuto(file, titolo, descrizione, visibilita)
+  +MostraFormContenutoPrecompilato(contenuto)
+  +InserisciDatiContenuto(file, titolo, descrizione, visibilita)
+  +ModificaCampiContenuto(file, titolo, descrizione, visibilita)
+  +CompilaTitolo(titolo)
+  +SelezionaLivelloVisibilita(visibilita)
+  +ClickConferma()
+}
+
+class "GestioneCaricaContenutiCtl" as GestioneCaricaContenutiCtl <<control>> {
+  -caricamentoInCorso
+  -file
+  -titolo
+  -descrizione
+  -visibilita
+  +AvviaCaricaContenuto()
+  +InviaDatiContenuto(file, titolo, descrizione, visibilita)
+  -InviaDatiContenutoElaborati(file, titolo, descrizione, visibilita)
+  +ElaboraDatiContenuto(file, titolo, descrizione, visibilita)
+  +VerificaTitoloNonVuoto(titolo)
+  +VerificaVisibilitaSelezionata(visibilita)
+  -iniziaCaricamento()
+  -terminaCaricamento()
+}
+
+class "GestioneModificaContenutiCtl" as GestioneModificaContenutiCtl <<control>> {
+  -modificaInCorso
+  -idContenuto
+  -file
+  -titolo
+  -descrizione
+  -visibilita
+  +AvviaModificaContenuto(idContenuto)
+  +InviaDatiModificati(idContenuto, file, titolo, descrizione, visibilita)
+  -InviaDatiModificatiElaborati(idContenuto, file, titolo, descrizione, visibilita)
+  +ElaboraDatiModificati(file, titolo, descrizione, visibilita)
+  -iniziaModifica()
+  -terminaModifica()
+}
+
+class "GestioneVisualizzaPortfolioCtl" as GestioneVisualizzaPortfolioCtl <<control>> {
+  +AvviaVisualizzaPortfolio(idStudente)
+}
+
+class "GestioneVisualizzaContenutoCtl" as GestioneVisualizzaContenutoCtl <<control>> {
+  -idContenuto
+  +AvviaVisualizzaContenuto(idContenuto)
+  +VerificaRecuperoContenuto(contenuto)
+}
+
+class "GestioneEliminaContenutiCtl" as GestioneEliminaContenutiCtl <<control>> {
+  -idContenuto
+  +AvviaEliminaContenuto(idContenuto)
+  +ElaboraRichiestaEliminazione(idContenuto)
+}
+
+class "Contenuto" as EntityContenuto <<entity>> {
+  -idContenuto
+  -file
+  -titolo
+  -descrizione
+  -visibilita
+  +CreaContenuto(file, titolo, descrizione, visibilita)
+  +AggiornaContenuto(idContenuto, file, titolo, descrizione, visibilita)
+  +EliminaContenuto(idContenuto)
+}
+
+class "PaginaContenuto" as PaginaContenuto <<boundary>> {
+  -contenuto
+  +MostraPaginaContenuto(contenuto)
+}
+
+class "PannelloErrore" as PannelloErrore <<boundary>> {
+  -messaggio
+  +MostraPannelloErrore(messaggio)
+  +ClickChiudi()
+  +ChiudiPannello()
+}
+
+class "PannelloAvviso" as PannelloAvviso <<boundary>> {
+  -messaggio
+  +MostraPannelloAvviso(messaggio)
+  +ClickConferma()
+  +ClickChiudi()
+  +ChiudiPannello()
+}
+
+class "DBMSBoundary" as DBMSBoundary <<boundary>> {
+  +RichiediSalvataggioContenuto(file, titolo, descrizione, visibilita)
+  +RichiediContenuto(idContenuto)
+  +RichiediAggiornamentoContenuto(idContenuto, file, titolo, descrizione, visibilita)
+  +RichiediEliminazioneContenuto(idContenuto)
+  +RichiediContenutiPortfolio(idStudente)
+}
+
+class "DBMS" as DBMS <<actor>> {
+  +queryInsertContenuto(file, titolo, descrizione, visibilita)
+  +querySelectContenuto(idContenuto)
+  +queryUpdateContenuto(idContenuto, file, titolo, descrizione, visibilita)
+  +queryDeleteContenuto(idContenuto)
+  +querySelectContenutiPortfolio(idStudente)
+}
+
+' === Associazioni (scambio di messaggi tra classi) ===
+InterfacciaPrincipaleStudente -- GestioneCaricaContenutiCtl
+InterfacciaPrincipaleStudente -- GestioneModificaContenutiCtl
+InterfacciaPrincipaleStudente -- GestioneVisualizzaContenutoCtl
+InterfacciaPrincipaleStudente -- GestioneEliminaContenutiCtl
+InterfacciaPrincipaleStudente -- GestioneVisualizzaPortfolioCtl
+
+GestioneCaricaContenutiCtl -- FormContenuto
+GestioneCaricaContenutiCtl -- PannelloErrore
+GestioneCaricaContenutiCtl -- PannelloAvviso
+GestioneCaricaContenutiCtl -- EntityContenuto
+GestioneCaricaContenutiCtl -- DBMSBoundary
+
+GestioneModificaContenutiCtl -- FormContenuto
+GestioneModificaContenutiCtl -- PannelloErrore
+GestioneModificaContenutiCtl -- PannelloAvviso
+GestioneModificaContenutiCtl -- EntityContenuto
+GestioneModificaContenutiCtl -- DBMSBoundary
+
+GestioneVisualizzaContenutoCtl -- DBMSBoundary
+GestioneVisualizzaContenutoCtl -- PannelloErrore
+GestioneVisualizzaContenutoCtl -- PaginaContenuto
+
+GestioneEliminaContenutiCtl -- PannelloAvviso
+GestioneEliminaContenutiCtl -- PannelloErrore
+GestioneEliminaContenutiCtl -- EntityContenuto
+GestioneEliminaContenutiCtl -- DBMSBoundary
+
+GestioneVisualizzaPortfolioCtl -- DBMSBoundary
+GestioneVisualizzaPortfolioCtl -- EntityContenuto
+
+DBMSBoundary -- DBMS
+
+@enduml

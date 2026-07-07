@@ -1,0 +1,84 @@
+@startuml sd_CaricaContenuto
+title <b>sd CaricaContenuto</b>
+
+actor "Studente" as Studente
+boundary "InterfacciaPrincipaleStudente" as InterfacciaPrincipaleStudente
+boundary "FormContenuto" as FormContenuto
+control "GestioneCaricaContenutiCtl" as GestioneCaricaContenutiCtl
+entity "Contenuto" as EntityContenuto
+boundary "PannelloErrore" as PannelloErrore
+boundary "PannelloAvviso" as PannelloAvviso
+boundary "DBMSBoundary" as DBMSBoundary
+actor "DBMS" as DBMS
+
+activate Studente
+Studente -> InterfacciaPrincipaleStudente : 1: ClickCaricaNuovoContenuto()
+activate InterfacciaPrincipaleStudente
+InterfacciaPrincipaleStudente -> GestioneCaricaContenutiCtl : 1.1: AvviaCaricaContenuto()
+activate GestioneCaricaContenutiCtl
+GestioneCaricaContenutiCtl -> FormContenuto : 2: MostraFormContenuto(file, titolo, descrizione, visibilita)
+activate FormContenuto
+Studente -> FormContenuto : 3: InserisciDatiContenuto(file, titolo, descrizione, visibilita)
+Studente -> FormContenuto : 4: ClickConferma()
+FormContenuto -> GestioneCaricaContenutiCtl : 4.1: InviaDatiContenuto(file, titolo, descrizione, visibilita)
+alt 5: caricamentoInCorso = Vero
+    GestioneCaricaContenutiCtl -> PannelloAvviso : 5.1: MostraPannelloAvviso("Caricamento gia in corso")
+    activate PannelloAvviso
+    Studente -> PannelloAvviso : 5.2: ClickChiudi()
+    PannelloAvviso -> PannelloAvviso : 5.3: ChiudiPannello()
+    destroy PannelloAvviso
+else 5: caricamentoInCorso = Falso
+GestioneCaricaContenutiCtl -> GestioneCaricaContenutiCtl : 5: datiContenutoValidi = ElaboraDatiContenuto(file, titolo, descrizione, visibilita)
+
+alt 6: datiContenutoValidi = Falso
+    GestioneCaricaContenutiCtl -> PannelloErrore : 6.1: MostraPannelloErrore("Errore File")
+    activate PannelloErrore
+    Studente -> PannelloErrore : 6.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 6.3: ChiudiPannello()
+    destroy PannelloErrore
+    GestioneCaricaContenutiCtl -> InterfacciaPrincipaleStudente : 6.4: MostraInterfacciaPrincipaleStudente()
+else 7: datiContenutoValidi = Vero
+    GestioneCaricaContenutiCtl -> GestioneCaricaContenutiCtl : 7.1.0: titoloValido = VerificaTitoloNonVuoto(titolo)
+    opt 7.1: titoloValido = Falso
+        GestioneCaricaContenutiCtl -> PannelloErrore : 7.1.1: MostraPannelloErrore("Il campo Titolo non può essere vuoto")
+        activate PannelloErrore
+        Studente -> PannelloErrore : 7.1.2: ClickChiudi()
+        PannelloErrore -> PannelloErrore : 7.1.3: ChiudiPannello()
+        destroy PannelloErrore
+        Studente -> FormContenuto : 7.1.4: CompilaTitolo(titolo)
+    end
+    GestioneCaricaContenutiCtl -> GestioneCaricaContenutiCtl : 7.2.0: visibilitaSelezionata = VerificaVisibilitaSelezionata(visibilita)
+    opt 7.2: visibilitaSelezionata = Falso
+        GestioneCaricaContenutiCtl -> PannelloErrore : 7.2.1: MostraPannelloErrore("Seleziona Pubblico o Privato")
+        activate PannelloErrore
+        Studente -> PannelloErrore : 7.2.2: ClickChiudi()
+        PannelloErrore -> PannelloErrore : 7.2.3: ChiudiPannello()
+        destroy PannelloErrore
+        Studente -> FormContenuto : 7.2.4: SelezionaLivelloVisibilita(visibilita)
+    end
+    GestioneCaricaContenutiCtl -> EntityContenuto : 7.3.0: CreaContenuto(file, titolo, descrizione, visibilita)
+    activate EntityContenuto
+    deactivate EntityContenuto
+    GestioneCaricaContenutiCtl -> DBMSBoundary : 7.3.1: RichiediSalvataggioContenuto(file, titolo, descrizione, visibilita)
+    activate DBMSBoundary
+    DBMSBoundary -> DBMS : 7.3.2: queryInsertContenuto(file, titolo, descrizione, visibilita)
+    activate DBMS
+    DBMS --> DBMSBoundary : esitoSalvataggioContenuto
+    DBMSBoundary --> GestioneCaricaContenutiCtl : esitoSalvataggioContenuto
+    deactivate DBMS
+    deactivate DBMSBoundary
+    GestioneCaricaContenutiCtl -> PannelloAvviso : 7.4: MostraPannelloAvviso("Caricamento Avvenuto")
+    activate PannelloAvviso
+    Studente -> PannelloAvviso : 7.5: ClickChiudi()
+    PannelloAvviso -> PannelloAvviso : 7.6: ChiudiPannello()
+    destroy PannelloAvviso
+    GestioneCaricaContenutiCtl -> InterfacciaPrincipaleStudente : 7.7: MostraInterfacciaPrincipaleStudenteAggiornata()
+end
+end
+
+deactivate FormContenuto
+deactivate GestioneCaricaContenutiCtl
+deactivate InterfacciaPrincipaleStudente
+deactivate Studente
+
+@enduml

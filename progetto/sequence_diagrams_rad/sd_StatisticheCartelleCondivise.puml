@@ -1,0 +1,49 @@
+@startuml sd_StatisticheCartelleCondivise
+title <b>sd StatisticheCartelleCondivise</b>
+
+actor "Studente" as Studente
+boundary "GestioneCartelle" as GestioneCartelle
+boundary "PannelloStatistiche" as PannelloStatistiche
+control "GestioneStatisticheCtl" as GestioneStatisticheCtl
+boundary "PannelloErrore" as PannelloErrore
+boundary "DBMSBoundary" as DBMSBoundary
+actor "DBMS" as DBMS
+
+activate Studente
+Studente -> GestioneCartelle : 1: ClickVisualizzaStatistiche(idCartella)
+activate GestioneCartelle
+GestioneCartelle -> GestioneStatisticheCtl : 1.1: AvviaStatisticheCartella(idCartella)
+activate GestioneStatisticheCtl
+GestioneStatisticheCtl -> DBMSBoundary : 2.1: RichiediDatiStatistici(idCartella)
+activate DBMSBoundary
+DBMSBoundary -> DBMS : 2.2: querySelectDatiStatistici(idCartella)
+activate DBMS
+DBMS --> DBMSBoundary : datiStatistici
+DBMSBoundary --> GestioneStatisticheCtl : datiStatistici
+Deactivate DBMS
+Deactivate DBMSBoundary
+
+GestioneStatisticheCtl -> GestioneStatisticheCtl : 2.3: recuperoDatiRiuscito = VerificaRecuperoDati(datiStatistici)
+
+alt 3: recuperoDatiRiuscito = Falso
+    GestioneStatisticheCtl -> PannelloErrore : 3.1: MostraPannelloErrore()
+    activate PannelloErrore
+    Studente -> PannelloErrore : 3.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 3.3: ChiudiPannello()
+    destroy PannelloErrore
+    GestioneStatisticheCtl -> GestioneCartelle : 3.4: MostraGestioneCartelle()
+else 4: recuperoDatiRiuscito = Vero
+    GestioneStatisticheCtl -> PannelloStatistiche : 4.1: MostraPannelloStatistiche(datiStatistici)
+    activate PannelloStatistiche
+    Studente -> PannelloStatistiche : 4.2: VisualizzaDati()
+    Studente -> PannelloStatistiche : 4.3: ClickChiudi()
+    PannelloStatistiche -> PannelloStatistiche : 4.4: ChiudiPannello()
+    destroy PannelloStatistiche
+    GestioneStatisticheCtl -> GestioneCartelle : 4.5: MostraGestioneCartelle()
+end
+
+deactivate GestioneStatisticheCtl
+deactivate GestioneCartelle
+deactivate Studente
+
+@enduml

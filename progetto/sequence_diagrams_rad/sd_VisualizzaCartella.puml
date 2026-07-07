@@ -1,0 +1,45 @@
+@startuml sd_VisualizzaCartella
+title <b>sd VisualizzaCartella</b>
+
+actor "Studente" as Studente
+boundary "GestioneCartelle" as GestioneCartelle
+control "GestioneVisualizzaCartellaCtl" as GestioneVisualizzaCartellaCtl
+boundary "PaginaCartella" as PaginaCartella
+boundary "PannelloAvviso" as PannelloAvviso
+boundary "DBMSBoundary" as DBMSBoundary
+actor "DBMS" as DBMS
+
+activate Studente
+Studente -> GestioneCartelle : 1: ClickCartella(idCartella)
+activate GestioneCartelle
+GestioneCartelle -> GestioneVisualizzaCartellaCtl : 1.1: AvviaVisualizzaCartella(idCartella)
+activate GestioneVisualizzaCartellaCtl
+GestioneVisualizzaCartellaCtl -> DBMSBoundary : 2.1: RichiediContenutiCartella(idCartella)
+activate DBMSBoundary
+DBMSBoundary -> DBMS : 2.2: querySelectContenutiCartella(idCartella)
+activate DBMS
+DBMS --> DBMSBoundary : contenutiCartella
+DBMSBoundary --> GestioneVisualizzaCartellaCtl : contenutiCartella
+Deactivate DBMS
+Deactivate DBMSBoundary
+
+GestioneVisualizzaCartellaCtl -> GestioneVisualizzaCartellaCtl : 2.3: contenutiPresenti = VerificaPresenzaContenuti(contenutiCartella)
+
+alt 3: contenutiPresenti = Falso
+    GestioneVisualizzaCartellaCtl -> PannelloAvviso : 3.1: MostraPannelloAvviso("Cartella Vuota")
+    activate PannelloAvviso
+    Studente -> PannelloAvviso : 3.2: ClickChiudi()
+    PannelloAvviso -> PannelloAvviso : 3.3: ChiudiPannello()
+    destroy PannelloAvviso
+    GestioneVisualizzaCartellaCtl -> GestioneCartelle : 3.4: MostraGestioneCartelle()
+else 4: contenutiPresenti = Vero
+    GestioneVisualizzaCartellaCtl -> PaginaCartella : 4.1: MostraPaginaCartella(contenutiCartella)
+    activate PaginaCartella
+    deactivate PaginaCartella
+end
+
+deactivate GestioneVisualizzaCartellaCtl
+deactivate GestioneCartelle
+deactivate Studente
+
+@enduml

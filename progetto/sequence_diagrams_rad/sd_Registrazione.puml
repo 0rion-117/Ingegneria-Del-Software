@@ -1,0 +1,144 @@
+@startuml sd_Registrazione
+title <b>sd Registrazione</b>
+
+actor "Studente" as Studente
+boundary "ModuloLogin" as ModuloLogin
+boundary "FormRegistrati" as FormRegistrati
+control "GestioneRegistrazioneCtl" as GestioneRegistrazioneCtl
+entity "Studente" as EntityStudente
+boundary "PannelloErrore" as PannelloErrore
+boundary "PannelloAvviso" as PannelloAvviso
+boundary "DBMSBoundary" as DBMSBoundary
+actor "DBMS" as DBMS
+
+'=== Passi 1-4: apertura e invio form ===
+activate Studente
+Studente -> ModuloLogin : 1: ClickRegistrati()
+activate ModuloLogin
+ModuloLogin -> GestioneRegistrazioneCtl : 1.1: AvviaRegistrazione()
+deactivate ModuloLogin
+activate GestioneRegistrazioneCtl
+GestioneRegistrazioneCtl -> FormRegistrati : 2: MostraFormRegistrati()
+activate FormRegistrati
+Studente -> FormRegistrati : 3: CompilaCampiRegistrazione(nome, cognome, email, password, confermaPassword, dataNascita, codiceFiscale, username)
+Studente -> FormRegistrati : 4: ClickContinua()
+FormRegistrati -> GestioneRegistrazioneCtl : 4.1: InviaDatiRegistrazione(nome, cognome, email, password, confermaPassword, dataNascita, codiceFiscale, username)
+
+'=== Passi 5-8: validazioni sintattiche ===
+GestioneRegistrazioneCtl -> GestioneRegistrazioneCtl : 5.0: formatoEmailValido = ValidaFormatoEmail(email)
+loop 5: formatoEmailValido = Falso
+    GestioneRegistrazioneCtl -> PannelloErrore : 5.1: MostraPannelloErrore("E-mail non valida")
+    activate PannelloErrore
+    Studente -> PannelloErrore : 5.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 5.3: ChiudiPannello()
+    destroy PannelloErrore
+    Studente -> FormRegistrati : 5.4: CompilaEmail(email)
+    Studente -> FormRegistrati : 5.5: ClickContinua()
+    FormRegistrati -> GestioneRegistrazioneCtl : 5.5.1: InviaEmail(email)
+    GestioneRegistrazioneCtl -> GestioneRegistrazioneCtl : 5.5.2: formatoEmailValido = ValidaFormatoEmail(email)
+end
+
+GestioneRegistrazioneCtl -> GestioneRegistrazioneCtl : 6.0: formatoPasswordValido = ValidaFormatoPassword(password)
+loop 6: formatoPasswordValido = Falso
+    GestioneRegistrazioneCtl -> PannelloErrore : 6.1: MostraPannelloErrore("Password non valida")
+    activate PannelloErrore
+    Studente -> PannelloErrore : 6.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 6.3: ChiudiPannello()
+    destroy PannelloErrore
+    Studente -> FormRegistrati : 6.4: CompilaPassword(password)
+    Studente -> FormRegistrati : 6.5: ClickContinua()
+    FormRegistrati -> GestioneRegistrazioneCtl : 6.5.1: InviaPassword(password)
+    GestioneRegistrazioneCtl -> GestioneRegistrazioneCtl : 6.5.2: formatoPasswordValido = ValidaFormatoPassword(password)
+end
+
+GestioneRegistrazioneCtl -> GestioneRegistrazioneCtl : 7.0: passwordCorrispondono = VerificaCorrispondenzaPassword(password, confermaPassword)
+loop 7: passwordCorrispondono = Falso
+    GestioneRegistrazioneCtl -> PannelloErrore : 7.1: MostraPannelloErrore("le Password non corrispondono")
+    activate PannelloErrore
+    Studente -> PannelloErrore : 7.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 7.3: ChiudiPannello()
+    destroy PannelloErrore
+    Studente -> FormRegistrati : 7.4: CompilaPassword(password)
+    Studente -> FormRegistrati : 7.5: CompilaConfermaPassword(confermaPassword)
+    Studente -> FormRegistrati : 7.6: ClickContinua()
+    FormRegistrati -> GestioneRegistrazioneCtl : 7.6.1: InviaPasswordConferma(password, confermaPassword)
+    GestioneRegistrazioneCtl -> GestioneRegistrazioneCtl : 7.6.2: passwordCorrispondono = VerificaCorrispondenzaPassword(password, confermaPassword)
+end
+
+GestioneRegistrazioneCtl -> GestioneRegistrazioneCtl : 8.0: formatoCodiceFiscaleValido = ValidaFormatoCodiceFiscale(codiceFiscale)
+loop 8: formatoCodiceFiscaleValido = Falso
+    GestioneRegistrazioneCtl -> PannelloErrore : 8.1: MostraPannelloErrore("Codice Fiscale non valido")
+    activate PannelloErrore
+    Studente -> PannelloErrore : 8.2: ClickChiudi()
+    PannelloErrore -> PannelloErrore : 8.3: ChiudiPannello()
+    destroy PannelloErrore
+    Studente -> FormRegistrati : 8.4: CompilaCodiceFiscale(codiceFiscale)
+    Studente -> FormRegistrati : 8.5: ClickContinua()
+    FormRegistrati -> GestioneRegistrazioneCtl : 8.5.1: InviaCodiceFiscale(codiceFiscale)
+    GestioneRegistrazioneCtl -> GestioneRegistrazioneCtl : 8.5.2: formatoCodiceFiscaleValido = ValidaFormatoCodiceFiscale(codiceFiscale)
+end
+
+'=== Passi 9-13: verifiche DBMS e salvataggio ===
+GestioneRegistrazioneCtl -> DBMSBoundary : 9.1: RichiediVerificaDatiRegistrazione(codiceFiscale, email, username)
+activate DBMSBoundary
+DBMSBoundary -> DBMS : 9.2: querySelectDatiRegistrazione(codiceFiscale, email, username)
+activate DBMS
+DBMS --> DBMSBoundary : esitoVerificaDati
+DBMSBoundary --> GestioneRegistrazioneCtl : esitoVerificaDati
+Deactivate DBMS
+Deactivate DBMSBoundary
+GestioneRegistrazioneCtl -> GestioneRegistrazioneCtl : 9.3: codiceFiscalePresente = VerificaCodiceFiscalePresente(esitoVerificaDati)
+GestioneRegistrazioneCtl -> GestioneRegistrazioneCtl : 9.4: emailPresente = VerificaEmailPresente(esitoVerificaDati)
+GestioneRegistrazioneCtl -> GestioneRegistrazioneCtl : 9.5: usernamePresente = VerificaUsernamePresente(esitoVerificaDati)
+GestioneRegistrazioneCtl -> GestioneRegistrazioneCtl : 9.6: datiPresenti = VerificaDatiGiaPresenti(esitoVerificaDati)
+
+alt 10: codiceFiscalePresente = Vero
+    GestioneRegistrazioneCtl -> PannelloAvviso : 10.1: MostraPannelloAvviso("CF già utilizzato")
+    activate PannelloAvviso
+    Studente -> PannelloAvviso : 10.2: ClickChiudi()
+    PannelloAvviso -> PannelloAvviso : 10.3: ChiudiPannello()
+    destroy PannelloAvviso
+    Studente -> FormRegistrati : 10.4: CompilaCodiceFiscale(codiceFiscale)
+    Studente -> FormRegistrati : 10.5: ClickContinua()
+else 11: emailPresente = Vero
+    GestioneRegistrazioneCtl -> PannelloAvviso : 11.1: MostraPannelloAvviso("Email già utilizzata")
+    activate PannelloAvviso
+    Studente -> PannelloAvviso : 11.2: ClickChiudi()
+    PannelloAvviso -> PannelloAvviso : 11.3: ChiudiPannello()
+    destroy PannelloAvviso
+    Studente -> FormRegistrati : 11.4: CompilaEmail(email)
+    Studente -> FormRegistrati : 11.5: ClickContinua()
+else 12: usernamePresente = Vero
+    GestioneRegistrazioneCtl -> PannelloAvviso : 12.1: MostraPannelloAvviso("Username già utilizzato")
+    activate PannelloAvviso
+    Studente -> PannelloAvviso : 12.2: ClickChiudi()
+    PannelloAvviso -> PannelloAvviso : 12.3: ChiudiPannello()
+    destroy PannelloAvviso
+    Studente -> FormRegistrati : 12.4: CompilaUsername(username)
+    Studente -> FormRegistrati : 12.5: ClickContinua()
+else 13: datiPresenti = Falso
+    GestioneRegistrazioneCtl -> GestioneRegistrazioneCtl : 13.1: CriptaPassword(password)
+    GestioneRegistrazioneCtl -> EntityStudente : 13.1.1: CreaStudente(nome, cognome, email, passwordCifrata, dataNascita, codiceFiscale, username)
+    activate EntityStudente
+    deactivate EntityStudente
+    GestioneRegistrazioneCtl -> DBMSBoundary : 13.2.1: RichiediInserimentoStudente(nome, cognome, email, passwordCifrata, dataNascita, codiceFiscale, username)
+    activate DBMSBoundary
+    DBMSBoundary -> DBMS : 13.2.2: queryInsertStudente(nome, cognome, email, passwordCifrata, dataNascita, codiceFiscale, username)
+    activate DBMS
+    DBMS --> DBMSBoundary : esitoInserimento
+    deactivate DBMS
+    DBMSBoundary --> GestioneRegistrazioneCtl : esitoInserimento
+    deactivate DBMSBoundary
+    GestioneRegistrazioneCtl -> PannelloAvviso : 13.3: MostraPannelloAvviso("avvenuta registrazione")
+    activate PannelloAvviso
+    Studente -> PannelloAvviso : 13.4: ClickChiudi()
+    PannelloAvviso -> PannelloAvviso : 13.5: ChiudiPannello()
+    destroy PannelloAvviso
+    GestioneRegistrazioneCtl -> ModuloLogin : 13.6: MostraModuloLogin()
+end
+
+deactivate FormRegistrati
+deactivate Studente
+deactivate GestioneRegistrazioneCtl
+
+@enduml

@@ -1,0 +1,47 @@
+@startuml sd_RegistraVisualizzazione
+title <b>sd RegistraVisualizzazione</b>
+
+control "RegistraVisualizzazioneCtl" as RegistraVisualizzazioneCtl
+entity "Cartella" as EntityCartella
+entity "Notifica" as EntityNotifica
+boundary "DBMSBoundary" as DBMSBoundary
+actor "DBMS" as DBMS
+
+activate RegistraVisualizzazioneCtl
+RegistraVisualizzazioneCtl -> DBMSBoundary : 1.1: RichiediVisualizzazioniCartella(idCartella)
+activate DBMSBoundary
+DBMSBoundary -> DBMS : 1.2: querySelectNumeroVisualizzazioni(idCartella)
+activate DBMS
+DBMS --> DBMSBoundary : numeroVisualizzazioni
+DBMSBoundary --> RegistraVisualizzazioneCtl : numeroVisualizzazioni
+Deactivate DBMS
+Deactivate DBMSBoundary
+
+RegistraVisualizzazioneCtl -> EntityCartella : 2: SetNumeroVisualizzazioni(numeroVisualizzazioni + 1)
+activate EntityCartella
+EntityCartella --> RegistraVisualizzazioneCtl : numeroVisualizzazioniAggiornato
+deactivate EntityCartella
+RegistraVisualizzazioneCtl -> DBMSBoundary : 3.1: RichiediAggiornamentoVisualizzazioni(idCartella, numeroVisualizzazioniAggiornato)
+activate DBMSBoundary
+DBMSBoundary -> DBMS : 3.2: queryUpdateNumeroVisualizzazioni(idCartella, numeroVisualizzazioniAggiornato)
+activate DBMS
+DBMS --> DBMSBoundary : esitoAggiornamentoVisualizzazioni
+DBMSBoundary --> RegistraVisualizzazioneCtl : esitoAggiornamentoVisualizzazioni
+deactivate DBMS
+deactivate DBMSBoundary
+
+RegistraVisualizzazioneCtl -> EntityNotifica : 4.1: CreaNotifica(idStudente, idCartella, tipo, "Da leggere", dataOraGenerazione)
+activate EntityNotifica
+deactivate EntityNotifica
+RegistraVisualizzazioneCtl -> DBMSBoundary : 4.2: RichiediInserimentoNotifica(idStudente, idCartella, tipo, "Da leggere", dataOraGenerazione)
+activate DBMSBoundary
+DBMSBoundary -> DBMS : 4.3: queryInsertNotifica(idStudente, idCartella, tipo, "Da leggere", dataOraGenerazione)
+activate DBMS
+DBMS --> DBMSBoundary : esitoInserimentoNotifica
+DBMSBoundary --> RegistraVisualizzazioneCtl : esitoInserimentoNotifica
+deactivate DBMS
+deactivate DBMSBoundary
+
+deactivate RegistraVisualizzazioneCtl
+
+@enduml

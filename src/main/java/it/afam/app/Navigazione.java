@@ -1,10 +1,10 @@
 package it.afam.app;
 
-import it.afam.view.ViewBannerNotifica;
-import it.afam.view.ViewPannelloAvviso;
-import it.afam.view.ViewPannelloErrore;
-import it.afam.view.ViewPannelloLink;
-import it.afam.view.ViewPannelloStatistiche;
+import it.afam.view.BannerNotificaController;
+import it.afam.view.PannelloAvvisoController;
+import it.afam.view.PannelloErroreController;
+import it.afam.view.PannelloLinkController;
+import it.afam.view.PannelloStatisticheController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -131,7 +131,7 @@ public final class Navigazione {
             FXMLLoader loader = loader("PannelloErrore.fxml");
             Parent root = loader.load();
             Stage dialog = modal(root, "PannelloErrore");
-            ViewPannelloErrore controller = loader.getController();
+            PannelloErroreController controller = loader.getController();
             controller.setStage(dialog);
             controller.MostraPannelloErrore(messaggio);
             dialog.showAndWait();
@@ -157,7 +157,7 @@ public final class Navigazione {
             FXMLLoader loader = loader("PannelloAvviso.fxml");
             Parent root = loader.load();
             Stage dialog = modal(root, "PannelloAvviso");
-            ViewPannelloAvviso controller = loader.getController();
+            PannelloAvvisoController controller = loader.getController();
             controller.setStage(dialog);
             controller.MostraPannelloAvviso(messaggio);
             controller.setConfermaVisibile(confermaVisibile);
@@ -174,7 +174,7 @@ public final class Navigazione {
             FXMLLoader loader = loader("PannelloLink.fxml");
             Parent root = loader.load();
             Stage dialog = modal(root, "PannelloLink");
-            ViewPannelloLink controller = loader.getController();
+            PannelloLinkController controller = loader.getController();
             controller.setStage(dialog);
             controller.CreaPannelloLink();
             controller.MostraLinkCondivisione(linkCartella);
@@ -189,7 +189,7 @@ public final class Navigazione {
             FXMLLoader loader = loader("PannelloStatistiche.fxml");
             Parent root = loader.load();
             Stage dialog = modal(root, "PannelloStatistiche");
-            ViewPannelloStatistiche controller = loader.getController();
+            PannelloStatisticheController controller = loader.getController();
             controller.setStage(dialog);
             controller.MostraPannelloStatistiche(datiStatistici);
             dialog.showAndWait();
@@ -203,7 +203,7 @@ public final class Navigazione {
             FXMLLoader loader = loader("BannerNotifica.fxml");
             Parent root = loader.load();
             Stage dialog = nonModal(root, "BannerNotifica");
-            ViewBannerNotifica controller = loader.getController();
+            BannerNotificaController controller = loader.getController();
             controller.setStage(dialog);
             controller.MostraBannerNotifica(testoNotifica);
             dialog.show();

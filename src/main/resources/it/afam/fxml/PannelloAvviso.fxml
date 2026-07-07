@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="it.afam.view.ViewPannelloAvviso" alignment="CENTER" spacing="12" styleClass="root">
+      fx:controller="it.afam.view.PannelloAvvisoController" alignment="CENTER" spacing="12" styleClass="root">
     <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
     <Label fx:id="messaggioLabel" alignment="CENTER" wrapText="true" prefWidth="420"/>
     <HBox alignment="CENTER" spacing="8">

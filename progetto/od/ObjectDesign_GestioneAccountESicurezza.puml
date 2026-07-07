@@ -1,0 +1,308 @@
+@startuml ObjectDesign_GestioneAccountESicurezza
+' ============================================================
+'  Object Design - Gestione Account e Sicurezza
+'  Derivato dal Class Diagram omonimo.
+'  Stessi metodi/attributi del class diagram, con l'aggiunta
+'  dei tipi (attributi, parametri, valori di ritorno) secondo
+'  lo stile grafico di "ESEMPIO OBJECT DESIGN UML".
+' ============================================================
+skinparam dpi 100
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 45
+skinparam ranksep 55
+skinparam padding 2
+hide circle
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #888888
+  BorderThickness 1
+  ArrowColor #888888
+  FontColor #000000
+  FontName SansSerif
+  FontSize 12
+  AttributeFontColor #000000
+  AttributeFontName SansSerif
+  AttributeFontSize 12
+  StereotypeFontColor #000000
+}
+title <b>Object Design - Gestione Account e Sicurezza</b>
+
+package "pkg" {
+
+class "ModuloLogin" as ModuloLogin <<boundary>> {
+  + ClickRegistrati() : Button
+  + ClickAccedi() : Button
+  + ClickAccediConSPID() : Button
+  + SelezionaRecuperoPassword() : Button
+  + MostraModuloLogin() : void
+}
+
+class "FormRegistrati" as FormRegistrati <<boundary>> {
+  - nome : TextField
+  - cognome : TextField
+  - email : TextField
+  - password : PasswordField
+  - confermaPassword : PasswordField
+  - dataNascita : DatePicker
+  - codiceFiscale : TextField
+  - username : TextField
+  + MostraFormRegistrati() : void
+  + CompilaCampiRegistrazione(nome : String, cognome : String, email : String, password : String, confermaPassword : String, dataNascita : LocalDate, codiceFiscale : String, username : String) : void
+  + CompilaEmail(email : String) : void
+  + CompilaPassword(password : String) : void
+  + CompilaConfermaPassword(confermaPassword : String) : void
+  + CompilaCodiceFiscale(codiceFiscale : String) : void
+  + CompilaUsername(username : String) : void
+  + ClickContinua() : Button
+}
+
+class "GestioneRegistrazioneCtl" as GestioneRegistrazioneCtl <<control>> {
+  - nome : String
+  - cognome : String
+  - email : String
+  - password : String
+  - confermaPassword : String
+  - dataNascita : LocalDate
+  - codiceFiscale : String
+  - username : String
+  - passwordCifrata : String
+  + AvviaRegistrazione() : void
+  + InviaDatiRegistrazione(nome : String, cognome : String, email : String, password : String, confermaPassword : String, dataNascita : LocalDate, codiceFiscale : String, username : String) : void
+  + InviaEmail(email : String) : void
+  + InviaPassword(password : String) : void
+  + InviaPasswordConferma(password : String, confermaPassword : String) : void
+  + InviaCodiceFiscale(codiceFiscale : String) : void
+  + ValidaFormatoEmail(email : String) : boolean
+  + ValidaFormatoPassword(password : String) : boolean
+  + VerificaCorrispondenzaPassword(password : String, confermaPassword : String) : boolean
+  + ValidaFormatoCodiceFiscale(codiceFiscale : String) : boolean
+  + VerificaCodiceFiscalePresente(esitoVerificaDati : boolean) : boolean
+  + VerificaEmailPresente(esitoVerificaDati : boolean) : boolean
+  + VerificaUsernamePresente(esitoVerificaDati : boolean) : boolean
+  + VerificaDatiGiaPresenti(esitoVerificaDati : boolean) : boolean
+  + CriptaPassword(password : String) : String
+}
+
+class "FormAutenticati" as FormAutenticati <<boundary>> {
+  - email : TextField
+  - password : PasswordField
+  + MostraFormAutenticati() : void
+  + CompilaEmail(email : String) : void
+  + CompilaPassword(password : String) : void
+  + CompilaCampi(email : String, password : String) : void
+  + ClickContinua() : Button
+}
+
+class "GestioneAutenticazioneCtl" as GestioneAutenticazioneCtl <<control>> {
+  - email : String
+  - password : String
+  - passwordCifrata : String
+  + AvviaAutenticazione() : void
+  + InviaCredenziali(email : String, password : String) : void
+  + ValidaFormatoEmail(email : String) : boolean
+  + InviaEmail(email : String) : void
+  + VerificaEmailRegistrata(esitoVerificaEmail : boolean) : boolean
+  + CriptaPassword(password : String) : String
+  + InviaPassword(password : String) : void
+  + VerificaPasswordCorretta(esitoVerificaPassword : boolean) : boolean
+}
+
+class "GestioneVerifica2FACtl" as GestioneVerifica2FACtl <<control>> {
+  - email : String
+  - codiceTemporaneo : String
+  - codiceInserito : String
+  + AvviaVerifica2FA(email : String) : void
+  + GeneraCodiceNumericoTemporaneo() : String
+  + InviaCodiceEmail(codiceTemporaneo : String) : void
+  + InviaCodice(codiceInserito : String) : void
+  + VerificaCodice(codiceInserito : String, codiceTemporaneo : String) : boolean
+}
+
+class "FormVerifica2FA" as FormVerifica2FA <<boundary>> {
+  - codiceInserito : TextField
+  + MostraFormVerifica2FA() : void
+  + InserisciCodice(codiceInserito : String) : void
+  + ClickVerifica() : Button
+}
+
+class "GestioneAutenticazioneSPIDCtl" as GestioneAutenticazioneSPIDCtl <<control>> {
+  - provider : String
+  - email : String
+  - password : String
+  - codiceFiscale : String
+  + AvviaAutenticazioneSPID() : void
+  + InviaProviderSelezionato(provider : String) : void
+  + InviaCredenzialiProvider(email : String, password : String) : void
+}
+
+class "ElencoProviderBoundary" as ElencoProviderBoundary <<boundary>> {
+  - provider : String
+  + MostraElencoProviderBoundary() : void
+  + SelezionaFornitoreIdentitaDigitale(provider : String) : Button
+}
+
+class "ProviderBoundary" as ProviderBoundary <<boundary>> {
+  - provider : String
+  - email : TextField
+  - password : PasswordField
+  + MostraProviderBoundary(provider : String) : void
+  + CompilaCredenzialiProvider(email : String, password : String) : void
+  + RichiediAutenticazioneProvider(email : String, password : String) : void
+  + ClickConferma() : Button
+}
+
+class "Fornitore di Identita Digitale" as FornitoreIdentitaDigitale <<actor>> {
+  + VerificaCredenzialiProvider(email : String, password : String) : boolean
+}
+
+class "InterfacciaPrincipaleStudente" as InterfacciaPrincipaleStudente <<boundary>> {
+  + MostraInterfacciaPrincipaleStudente() : void
+  + ClickLogout() : Button
+}
+
+class "GestioneProfilo" as GestioneProfilo <<boundary>> {
+  - password : PasswordField
+  + ClickModificaPassword() : Button
+  + SelezionaEliminaAccount() : Button
+  + RichiediPasswordConfermaIdentita() : void
+  + InserisciPassword(password : String) : void
+  + ClickConferma() : Button
+  + MostraGestioneProfilo() : void
+}
+
+class "FormModificaPassword" as FormModificaPassword <<boundary>> {
+  - passwordCorrente : PasswordField
+  - nuovaPassword : PasswordField
+  - confermaNuovaPassword : PasswordField
+  + MostraFormModificaPassword() : void
+  + InserisciDatiPassword(passwordCorrente : String, nuovaPassword : String, confermaNuovaPassword : String) : void
+  + ClickConferma() : Button
+}
+
+class "GestioneModificaPasswordCtl" as GestioneModificaPasswordCtl <<control>> {
+  - idStudente : int
+  - passwordCorrente : String
+  - nuovaPassword : String
+  - confermaNuovaPassword : String
+  - passwordCifrata : String
+  + AvviaModificaPassword() : void
+  + InviaDatiPassword(passwordCorrente : String, nuovaPassword : String, confermaNuovaPassword : String) : void
+  + ValidaNuovaPassword(passwordCorrente : String, nuovaPassword : String, confermaNuovaPassword : String) : boolean
+  + CriptaPassword(nuovaPassword : String) : String
+}
+
+class "FormRecuperoPassword" as FormRecuperoPassword <<boundary>> {
+  - email : TextField
+  + MostraFormRecuperoPassword() : void
+  + InserisciEmail(email : String) : void
+  + ClickConferma() : Button
+}
+
+class "GestioneRecuperoPasswordCtl" as GestioneRecuperoPasswordCtl <<control>> {
+  - email : String
+  - tokenReset : String
+  + AvviaRecuperoPassword() : void
+  + InviaEmailRecupero(email : String) : void
+  + ValidaFormatoEmail(email : String) : boolean
+  + GeneraTokenUnivocoReset() : String
+  + InviaEmailLinkReset(email : String, tokenReset : String) : void
+}
+
+class "GestioneLogoutCtl" as GestioneLogoutCtl <<control>> {
+  + AvviaLogout() : void
+  + TerminaSessioneStudente() : void
+}
+
+class "GestioneEliminazioneAccountCtl" as GestioneEliminazioneAccountCtl <<control>> {
+  - idStudente : int
+  - password : String
+  + AvviaEliminazioneAccount() : void
+  + InviaPasswordEliminazione(password : String) : void
+}
+
+class "Studente" as EntityStudente <<entity>> {
+  - idStudente : int
+  - nome : String
+  - cognome : String
+  - email : String
+  - password : String
+  - dataNascita : LocalDate
+  - codiceFiscale : String
+  - username : String
+  + CreaStudente(nome : String, cognome : String, email : String, passwordCifrata : String, dataNascita : LocalDate, codiceFiscale : String, username : String) : void
+  + SetPassword(passwordCifrata : String) : void
+  + RimuoviDatiStudente(idStudente : int) : void
+}
+
+class "PannelloErrore" as PannelloErrore <<boundary>> {
+  - messaggio : String
+  + MostraPannelloErrore(messaggio : String) : void
+  + ClickChiudi() : Button
+  + ChiudiPannello() : void
+}
+
+class "PannelloAvviso" as PannelloAvviso <<boundary>> {
+  - messaggio : String
+  + MostraPannelloAvviso(messaggio : String) : void
+  + ClickChiudi() : Button
+  + ClickEliminaAccount() : Button
+  + ChiudiPannello() : void
+}
+
+class "DBMSBoundary" as DBMSBoundary <<boundary>> {
+  + RichiediVerificaDatiRegistrazione(codiceFiscale : String, email : String, username : String) : boolean
+  + RichiediInserimentoStudente(nome : String, cognome : String, email : String, passwordCifrata : String, dataNascita : LocalDate, codiceFiscale : String, username : String) : void
+  + RichiediVerificaEmail(email : String) : boolean
+  + RichiediVerificaPassword(email : String, passwordCifrata : String) : boolean
+  + RichiediVerificaCodiceFiscale(codiceFiscale : String) : boolean
+  + RichiediAggiornamentoPassword(idStudente : int, passwordCifrata : String) : void
+  + RichiediVerificaAccountEmail(email : String) : boolean
+  + RichiediSalvataggioTokenReset(email : String, tokenReset : String) : void
+  + RichiediVerificaPassword(idStudente : int, password : String) : boolean
+  + RichiediEliminazioneStudente(idStudente : int) : void
+}
+
+class "DBMS" as DBMS <<actor>> {
+  + querySelectDatiRegistrazione(codiceFiscale : String, email : String, username : String) : ResultSet
+  + queryInsertStudente(nome : String, cognome : String, email : String, passwordCifrata : String, dataNascita : LocalDate, codiceFiscale : String, username : String) : void
+  + querySelectEmail(email : String) : ResultSet
+  + querySelectPassword(email : String, passwordCifrata : String) : ResultSet
+  + querySelectStudentePerCodiceFiscale(codiceFiscale : String) : ResultSet
+  + queryUpdatePassword(idStudente : int, passwordCifrata : String) : void
+  + querySelectAccountPerEmail(email : String) : ResultSet
+  + queryInsertTokenReset(email : String, tokenReset : String) : void
+  + querySelectPasswordStudente(idStudente : int, password : String) : ResultSet
+  + queryDeleteStudenteEDatiCollegati(idStudente : int) : void
+}
+
+
+' === Object Design in stile ESEMPIO: nessuna associazione visibile ===
+' === Disposizione a griglia su 2 colonne tramite link invisibili ===
+ModuloLogin -[hidden]down- FormRegistrati
+FormRegistrati -[hidden]down- GestioneRegistrazioneCtl
+GestioneRegistrazioneCtl -[hidden]down- FormAutenticati
+FormAutenticati -[hidden]down- GestioneAutenticazioneCtl
+GestioneAutenticazioneCtl -[hidden]down- GestioneVerifica2FACtl
+GestioneVerifica2FACtl -[hidden]down- FormVerifica2FA
+FormVerifica2FA -[hidden]down- GestioneAutenticazioneSPIDCtl
+GestioneAutenticazioneSPIDCtl -[hidden]down- ElencoProviderBoundary
+ElencoProviderBoundary -[hidden]down- ProviderBoundary
+ProviderBoundary -[hidden]down- FornitoreIdentitaDigitale
+FornitoreIdentitaDigitale -[hidden]down- InterfacciaPrincipaleStudente
+GestioneProfilo -[hidden]down- FormModificaPassword
+FormModificaPassword -[hidden]down- GestioneModificaPasswordCtl
+GestioneModificaPasswordCtl -[hidden]down- FormRecuperoPassword
+FormRecuperoPassword -[hidden]down- GestioneRecuperoPasswordCtl
+GestioneRecuperoPasswordCtl -[hidden]down- GestioneLogoutCtl
+GestioneLogoutCtl -[hidden]down- GestioneEliminazioneAccountCtl
+GestioneEliminazioneAccountCtl -[hidden]down- EntityStudente
+EntityStudente -[hidden]down- PannelloErrore
+PannelloErrore -[hidden]down- PannelloAvviso
+PannelloAvviso -[hidden]down- DBMSBoundary
+DBMSBoundary -[hidden]down- DBMS
+ModuloLogin -[hidden]right- GestioneProfilo
+
+}
+
+@enduml

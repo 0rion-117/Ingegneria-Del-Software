@@ -1,0 +1,65 @@
+@startuml sd_GenerazioneLinkSicuri
+title <b>sd GenerazioneLinkSicuri</b>
+
+actor "Studente" as Studente
+boundary "GestioneCartelle" as GestioneCartelle
+boundary "PannelloLink" as PannelloLink
+control "GestioneCondivisioneCtl" as GestioneCondivisioneCtl
+entity "Studente" as EntityStudente
+entity "Cartella" as EntityCartella
+boundary "DBMSBoundary" as DBMSBoundary
+actor "DBMS" as DBMS
+
+'=== Passo 1: avvio condivisione ===
+activate Studente
+Studente -> GestioneCartelle : 1: ClickCondividiCartella(idCartella)
+activate GestioneCartelle
+GestioneCartelle -> GestioneCondivisioneCtl : 1.1: AvvioCondivisione(idCartella)
+deactivate GestioneCartelle
+activate GestioneCondivisioneCtl
+
+'=== Passo 2: recupero dei contenuti della Cartella ===
+GestioneCondivisioneCtl -> DBMSBoundary : 2.1: RichiediContenutiCartella(idCartella)
+activate DBMSBoundary
+DBMSBoundary -> DBMS : 2.2: querySelectContenutiCartella(idCartella)
+activate DBMS
+DBMS --> DBMSBoundary : contenutiCartella
+deactivate DBMS
+DBMSBoundary --> GestioneCondivisioneCtl : contenutiCartella
+deactivate DBMSBoundary
+
+'=== Passo 3-4: generazione del link ===
+GestioneCondivisioneCtl -> EntityStudente : 3: GetUsernameStudente()
+activate EntityStudente
+EntityStudente --> GestioneCondivisioneCtl : usernameStudente
+deactivate EntityStudente
+GestioneCondivisioneCtl -> GestioneCondivisioneCtl : 4: GeneraLink(usernameStudente, idCartella)
+
+'=== Passo 5-6: salvataggio del link ===
+GestioneCondivisioneCtl -> EntityCartella : 5: SetLinkCartella(linkCartella)
+activate EntityCartella
+deactivate EntityCartella
+GestioneCondivisioneCtl -> DBMSBoundary : 6.1: RichiediAggiornamentoLinkCartella(idCartella, linkCartella)
+activate DBMSBoundary
+DBMSBoundary -> DBMS : 6.2: queryUpdateLinkCartella(idCartella, linkCartella)
+activate DBMS
+DBMS --> DBMSBoundary : esitoAggiornamentoLink
+deactivate DBMS
+DBMSBoundary --> GestioneCondivisioneCtl : esitoAggiornamentoLink
+deactivate DBMSBoundary
+
+'=== Passi 7-9: visualizzazione del PannelloLink ===
+GestioneCondivisioneCtl -> PannelloLink : 7: CreaPannelloLink()
+activate PannelloLink
+GestioneCondivisioneCtl -> PannelloLink : 8: MostraLinkCondivisione(linkCartella)
+Studente -> PannelloLink : 9.1: CopiaLink()
+Studente -> PannelloLink : 9.2: ClickChiudi()
+PannelloLink -> PannelloLink : 9.2.2: ChiudiPannello()
+destroy PannelloLink
+GestioneCondivisioneCtl -> GestioneCartelle : 9.3: MostraGestioneCartelle()
+activate GestioneCartelle
+deactivate GestioneCartelle
+deactivate Studente
+deactivate GestioneCondivisioneCtl
+
+@enduml

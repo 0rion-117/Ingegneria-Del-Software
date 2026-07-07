@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="it.afam.view.ViewInterfacciaPrincipale" styleClass="root">
+            fx:controller="it.afam.view.InterfacciaPrincipaleController" styleClass="root">
     <top>
         <HBox alignment="CENTER" spacing="16">
             <padding><Insets top="18" right="28" bottom="8" left="28"/></padding>
@@ -27,7 +27,6 @@
     <bottom>
         <HBox alignment="CENTER" spacing="8">
             <padding><Insets top="8" right="28" bottom="22" left="28"/></padding>
-            <Button text="Visualizza Contenuto" onAction="#ClickContenuto"/>
             <Button text="Modifica Contenuto" onAction="#ClickModificaContenuto"/>
             <Button text="Elimina Contenuto" onAction="#ClickEliminaContenuto"/>
         </HBox>
