@@ -20,6 +20,14 @@ public class GestioneCartelleController {
     public void initialize() {
         cartelleList.setItems(FXCollections.observableArrayList(
                 new GestioneVisualizzaCartellaCtl().CaricaCartelleStudente(Sessione.getIdStudente())));
+        cartelleList.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                Cartella cartella = cartelleList.getSelectionModel().getSelectedItem();
+                if (cartella != null) {
+                    ClickCartella(cartella.getIdCartella());
+                }
+            }
+        });
     }
 
     public void ClickCreaCartella() {
@@ -46,13 +54,6 @@ public class GestioneCartelleController {
 
     public void ClickEliminaCartella(int idCartella) {
         new GestioneEliminazioneCartellaCtl().AvviaEliminaCartella(idCartella);
-    }
-
-    public void ClickCartella() {
-        Cartella cartella = selezionaCartella();
-        if (cartella != null) {
-            ClickCartella(cartella.getIdCartella());
-        }
     }
 
     public void ClickCartella(int idCartella) {

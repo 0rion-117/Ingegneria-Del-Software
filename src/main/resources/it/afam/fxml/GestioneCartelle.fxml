@@ -25,7 +25,6 @@
         <HBox alignment="CENTER" spacing="8">
             <padding><Insets top="8" right="28" bottom="22" left="28"/></padding>
             <Button text="Torna indietro" onAction="#ClickIndietro"/>
-            <Button text="Visualizza Cartella" onAction="#ClickCartella"/>
             <Button text="Modifica Cartella" onAction="#ClickModificaCartella"/>
             <Button text="Elimina Cartella" onAction="#ClickEliminaCartella"/>
             <Button text="Condividi Cartella" onAction="#ClickCondividiCartella"/>
