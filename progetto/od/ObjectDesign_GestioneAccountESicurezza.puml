@@ -185,11 +185,12 @@ class "GestioneModificaPasswordCtl" as GestioneModificaPasswordCtl <<control>> {
   - passwordCorrente : String
   - nuovaPassword : String
   - confermaNuovaPassword : String
+  - passwordCorrenteCifrata : String
   - passwordCifrata : String
   + AvviaModificaPassword() : void
   + InviaDatiPassword(passwordCorrente : String, nuovaPassword : String, confermaNuovaPassword : String) : void
   + ValidaNuovaPassword(passwordCorrente : String, nuovaPassword : String, confermaNuovaPassword : String) : boolean
-  + CriptaPassword(nuovaPassword : String) : String
+  + CriptaPassword(password : String) : String
 }
 
 class "FormRecuperoPassword" as FormRecuperoPassword <<boundary>> {
@@ -256,10 +257,10 @@ class "DBMSBoundary" as DBMSBoundary <<boundary>> {
   + RichiediVerificaEmail(email : String) : boolean
   + RichiediVerificaPassword(email : String, passwordCifrata : String) : boolean
   + RichiediVerificaCodiceFiscale(codiceFiscale : String) : boolean
-  + RichiediAggiornamentoPassword(idStudente : int, passwordCifrata : String) : void
+  + RichiediAggiornamentoPassword(idStudente : int, passwordCifrata : String) : boolean
   + RichiediVerificaAccountEmail(email : String) : boolean
   + RichiediSalvataggioTokenReset(email : String, tokenReset : String) : void
-  + RichiediVerificaPassword(idStudente : int, password : String) : boolean
+  + RichiediVerificaPassword(idStudente : int, passwordCorrenteCifrata : String) : boolean
   + RichiediEliminazioneStudente(idStudente : int) : void
 }
 
@@ -269,10 +270,10 @@ class "DBMS" as DBMS <<actor>> {
   + querySelectEmail(email : String) : ResultSet
   + querySelectPassword(email : String, passwordCifrata : String) : ResultSet
   + querySelectStudentePerCodiceFiscale(codiceFiscale : String) : ResultSet
-  + queryUpdatePassword(idStudente : int, passwordCifrata : String) : void
+  + queryUpdatePassword(idStudente : int, passwordCifrata : String) : boolean
   + querySelectAccountPerEmail(email : String) : ResultSet
   + queryInsertTokenReset(email : String, tokenReset : String) : void
-  + querySelectPasswordStudente(idStudente : int, password : String) : ResultSet
+  + querySelectPasswordStudente(idStudente : int, passwordCorrenteCifrata : String) : boolean
   + queryDeleteStudenteEDatiCollegati(idStudente : int) : void
 }
 

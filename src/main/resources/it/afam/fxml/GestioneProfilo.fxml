@@ -26,9 +26,10 @@
                         styleClass="primary-login-button"/>
                 <Separator/>
                 <Button maxWidth="Infinity" prefHeight="46" text="Elimina Account" onAction="#SelezionaEliminaAccount"/>
-                <PasswordField fx:id="passwordField" maxWidth="Infinity" prefHeight="42" promptText="Password"/>
-                <Button maxWidth="Infinity" prefHeight="46" text="Conferma" onAction="#ClickConferma"
-                        styleClass="primary-login-button"/>
+                <PasswordField fx:id="passwordField" maxWidth="Infinity" prefHeight="42" promptText="Password"
+                               visible="false" managed="false"/>
+                <Button fx:id="confermaButton" maxWidth="Infinity" prefHeight="46" text="Conferma" onAction="#ClickConferma"
+                        styleClass="primary-login-button" visible="false" managed="false"/>
             </VBox>
         </VBox>
     </center>

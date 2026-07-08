@@ -183,11 +183,12 @@ class "GestioneModificaPasswordCtl" as GestioneModificaPasswordCtl <<control>> {
   -passwordCorrente
   -nuovaPassword
   -confermaNuovaPassword
+  -passwordCorrenteCifrata
   -passwordCifrata
   +AvviaModificaPassword()
   +InviaDatiPassword(passwordCorrente, nuovaPassword, confermaNuovaPassword)
   +ValidaNuovaPassword(passwordCorrente, nuovaPassword, confermaNuovaPassword)
-  +CriptaPassword(nuovaPassword)
+  +CriptaPassword(password)
 }
 
 class "FormRecuperoPassword" as FormRecuperoPassword <<boundary>> {
@@ -257,7 +258,7 @@ class "DBMSBoundary" as DBMSBoundary <<boundary>> {
   +RichiediAggiornamentoPassword(idStudente, passwordCifrata)
   +RichiediVerificaAccountEmail(email)
   +RichiediSalvataggioTokenReset(email, tokenReset)
-  +RichiediVerificaPassword(idStudente, password)
+  +RichiediVerificaPassword(idStudente, passwordCorrenteCifrata)
   +RichiediEliminazioneStudente(idStudente)
 }
 
@@ -270,7 +271,7 @@ class "DBMS" as DBMS <<actor>> {
   +queryUpdatePassword(idStudente, passwordCifrata)
   +querySelectAccountPerEmail(email)
   +queryInsertTokenReset(email, tokenReset)
-  +querySelectPasswordStudente(idStudente, password)
+  +querySelectPasswordStudente(idStudente, passwordCorrenteCifrata)
   +queryDeleteStudenteEDatiCollegati(idStudente)
 }
 

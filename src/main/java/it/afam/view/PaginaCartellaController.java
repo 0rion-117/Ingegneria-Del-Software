@@ -2,6 +2,7 @@ package it.afam.view;
 
 import it.afam.app.Navigazione;
 import it.afam.app.Sessione;
+import it.afam.control.portfolio.GestioneVisualizzaContenutoCtl;
 import it.afam.model.Contenuto;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -15,6 +16,18 @@ public class PaginaCartellaController {
     @FXML
     public void initialize() {
         MostraPaginaCartella(Sessione.getListaContenuti());
+        contenutiList.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                Contenuto contenuto = contenutiList.getSelectionModel().getSelectedItem();
+                if (contenuto != null) {
+                    ClickContenuto(contenuto.getIdContenuto());
+                }
+            }
+        });
+    }
+
+    public void ClickContenuto(int idContenuto) {
+        new GestioneVisualizzaContenutoCtl().AvviaVisualizzaContenuto(idContenuto);
     }
 
     public void MostraPaginaCartella(List<Contenuto> contenutiCartella) {

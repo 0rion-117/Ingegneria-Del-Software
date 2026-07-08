@@ -5,6 +5,7 @@ import it.afam.app.Sessione;
 import it.afam.control.account.GestioneEliminazioneAccountCtl;
 import it.afam.control.account.GestioneModificaPasswordCtl;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 
@@ -12,6 +13,7 @@ public class GestioneProfiloController {
     @FXML private Label usernameLabel;
     @FXML private Label emailLabel;
     @FXML private PasswordField passwordField;
+    @FXML private Button confermaButton;
 
     @FXML
     public void initialize() {
@@ -25,9 +27,14 @@ public class GestioneProfiloController {
 
     public void SelezionaEliminaAccount() {
         new GestioneEliminazioneAccountCtl().AvviaEliminazioneAccount();
+        RichiediPasswordConfermaIdentita();
     }
 
     public void RichiediPasswordConfermaIdentita() {
+        passwordField.setVisible(true);
+        passwordField.setManaged(true);
+        confermaButton.setVisible(true);
+        confermaButton.setManaged(true);
         passwordField.requestFocus();
     }
 

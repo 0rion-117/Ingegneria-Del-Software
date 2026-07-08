@@ -3,6 +3,7 @@ package it.afam.control.account;
 import it.afam.app.Navigazione;
 import it.afam.control.comune.GestioneErroreComunicazioneDBMSCtl;
 import it.afam.exception.DBMSException;
+import it.afam.model.Studente;
 import it.afam.persistence.DBMSBoundary;
 import it.afam.util.FunzioniGeneriche;
 
@@ -28,8 +29,23 @@ public class GestioneRecuperoPasswordCtl {
                 Navigazione.MostraFormRecuperoPassword();
                 return;
             }
+            Studente studente = dbmsBoundary.RichiediStudentePerEmail(email);
+            if (studente == null) {
+                Navigazione.MostraPannelloErrore("Nessun account associato all'indirizzo email inserito");
+                Navigazione.MostraFormRecuperoPassword();
+                return;
+            }
             tokenReset = GeneraTokenUnivocoReset();
-            dbmsBoundary.RichiediSalvataggioTokenReset(email, tokenReset);
+            String tokenCifrato = FunzioniGeneriche.criptaPassword(tokenReset);
+            dbmsBoundary.RichiediSalvataggioTokenReset(email, tokenCifrato);
+            studente.SetPassword(tokenCifrato);
+            boolean esitoAggiornamentoPassword =
+                    dbmsBoundary.RichiediAggiornamentoPassword(studente.getIdStudente(), tokenCifrato);
+            if (!esitoAggiornamentoPassword) {
+                Navigazione.MostraPannelloErrore("Errore DBMS");
+                Navigazione.MostraFormRecuperoPassword();
+                return;
+            }
             InviaEmailLinkReset(email, tokenReset);
             Navigazione.MostraPannelloAvviso("Email inviata");
             Navigazione.MostraModuloLogin();
@@ -48,5 +64,6 @@ public class GestioneRecuperoPasswordCtl {
 
     public void InviaEmailLinkReset(String email, String tokenReset) {
         System.out.println("Link reset per " + email + ": https://afam.it/reset/" + tokenReset);
+        System.out.println("Password temporanea per " + email + ": " + tokenReset);
     }
 }

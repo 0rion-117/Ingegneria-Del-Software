@@ -13,6 +13,7 @@ public class GestioneModificaPasswordCtl {
     private String passwordCorrente;
     private String nuovaPassword;
     private String confermaNuovaPassword;
+    private String passwordCorrenteCifrata;
     private String passwordCifrata;
     private final DBMSBoundary dbmsBoundary = new DBMSBoundary();
 
@@ -25,12 +26,19 @@ public class GestioneModificaPasswordCtl {
         this.passwordCorrente = passwordCorrente;
         this.nuovaPassword = nuovaPassword;
         this.confermaNuovaPassword = confermaNuovaPassword;
-        if (!ValidaNuovaPassword(passwordCorrente, nuovaPassword, confermaNuovaPassword)) {
-            Navigazione.MostraPannelloErrore("Errore Password");
-            Navigazione.MostraGestioneProfilo();
-            return;
-        }
         try {
+            passwordCorrenteCifrata = CriptaPassword(passwordCorrente);
+            boolean esitoVerificaPasswordCorrente = dbmsBoundary.RichiediVerificaPassword(idStudente, passwordCorrenteCifrata);
+            if (!esitoVerificaPasswordCorrente) {
+                Navigazione.MostraPannelloErrore("Password non corretta");
+                Navigazione.MostraGestioneProfilo();
+                return;
+            }
+            if (!ValidaNuovaPassword(passwordCorrente, nuovaPassword, confermaNuovaPassword)) {
+                Navigazione.MostraPannelloErrore("Errore Password");
+                Navigazione.MostraGestioneProfilo();
+                return;
+            }
             passwordCifrata = CriptaPassword(nuovaPassword);
             new Studente().SetPassword(passwordCifrata);
             boolean esitoAggiornamentoPassword = dbmsBoundary.RichiediAggiornamentoPassword(idStudente, passwordCifrata);

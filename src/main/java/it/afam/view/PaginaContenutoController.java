@@ -116,6 +116,11 @@ public class PaginaContenutoController {
         VBox box = new VBox(8, mediaView, controlliMedia());
         box.setAlignment(Pos.CENTER);
         contenutoPane.getChildren().setAll(box);
+        mediaPlayer.setOnReady(() -> {
+            if (mediaPlayer.getMedia().getWidth() <= 0) {
+                ErroreRiproduzione(file, "Apri video");
+            }
+        });
         mediaPlayer.setOnError(() -> ErroreRiproduzione(file, "Apri video"));
     }
 

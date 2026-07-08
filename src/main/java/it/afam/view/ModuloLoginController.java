@@ -37,6 +37,10 @@ public class ModuloLoginController {
         usernameField.setText(usernameStudente);
     }
 
+    public void InserisciLinkDedicato(String linkDedicato) {
+        usernameField.setText(linkDedicato);
+    }
+
     public void ClickCerca() {
         String valoreRicerca = usernameField.getText() == null ? "" : usernameField.getText().trim();
         if (valoreRicerca.startsWith("http://")

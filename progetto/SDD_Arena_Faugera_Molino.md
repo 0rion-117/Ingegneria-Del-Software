@@ -182,6 +182,15 @@ Il sistema è organizzato secondo il pattern Boundary-Control-Entity (BCE), coer
 
 Per poter utilizzare correttamente il sistema, devono essere soddisfatti i seguenti requisiti tecnici: 
 
+| Requisito | Descrizione |
+| ----- | ----- |
+| **Runtime Java** | Java JDK 17 o versione successiva, necessario per l’esecuzione dell’applicazione JavaFX. |
+| **Build tool** | Apache Maven, necessario per scaricare le dipendenze e avviare il progetto. |
+| **Persistenza locale** | Database SQLite generato automaticamente nel file afam.db. |
+| **Dipendenze JavaFX** | Moduli JavaFX necessari per l’interfaccia grafica, i file FXML e la gestione dei contenuti multimediali. |
+| **File system locale** | Cartella files/\<username\>/ utilizzata per la copia interna dei file caricati dagli studenti. |
+| **Connessione Internet iniziale** | Necessaria al primo avvio di Maven per scaricare JavaFX, SQLite JDBC, PDFBox e i plugin Maven. |
+
 ### 
 
 ### **4.3 Scomposizione in Sottoinsiemi**  {#4.3-scomposizione-in-sottoinsiemi}
